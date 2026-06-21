@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:#eae3d2;font-family:'Public Sans',system-ui,sans-serif;color:#19211c;-webkit-font-smoothing:antialiased}
+::selection{background:#b08d44;color:#fff}
+::-webkit-scrollbar{height:9px;width:9px}
+::-webkit-scrollbar-thumb{background:rgba(18,60,39,.25);border-radius:6px}
+@keyframes ccpulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes ccfade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@keyframes ccspin{to{transform:rotate(360deg)}}
+input{font-family:inherit;outline:none}
+button{font-family:inherit;cursor:pointer}
+</style>
+</helmet>
+
+<div style="min-height:100vh;display:flex;flex-direction:column">
+
+  <!-- ===== MASTHEAD ===== -->
+  <header style="background:linear-gradient(160deg,#123c27,#0a2417);color:#f3efe4;padding:0;position:sticky;top:0;z-index:30;box-shadow:0 2px 14px rgba(0,0,0,.18)">
+    <div style="max-width:1180px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:14px">
+      <svg width="46" height="46" viewBox="0 0 100 100" style="flex:none">
+        <defs>
+          <linearGradient id="ccwood" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#e0c589"/>
+            <stop offset="0.5" stop-color="#c8a661"/>
+            <stop offset="1" stop-color="#a8823c"/>
+          </linearGradient>
+        </defs>
+        <circle cx="50" cy="50" r="48" fill="#0a2417"/>
+        <circle cx="50" cy="50" r="44" fill="none" stroke="#b08d44" stroke-width="2"/>
+        <g fill="url(#ccwood)">
+          <rect x="35" y="83" width="22" height="6" rx="2.5"/>
+          <rect x="38" y="78" width="16" height="5" rx="2"/>
+          <rect x="42" y="73" width="8" height="6"/>
+          <path d="M46 43 C36 43 31 51 31 58 C31 67 38 73 46 73 C54 73 61 67 61 58 C61 51 56 43 46 43 Z"/>
+          <path d="M43 38 L51 38 L56 46 L36 46 Z"/>
+          <rect x="42" y="30" width="8" height="9"/>
+          <path d="M41 31 L40 15 L46 23 L52 13 L52 31 Z"/>
+        </g>
+        <path d="M51 31 C65 28 70 41 61 49" fill="none" stroke="url(#ccwood)" stroke-width="3.4" stroke-linecap="round"/>
+        <path d="M53 51.5 A7.2 7.2 0 1 0 53 63.5" fill="none" stroke="#0a2417" stroke-width="2.6" stroke-linecap="round"/>
+        <line x1="46" y1="49.5" x2="46" y2="64.5" stroke="#0a2417" stroke-width="2" stroke-linecap="round"/>
+        <path d="M46 49.5 L53.5 52 L46 54.5 Z" fill="#0a2417"/>
+      </svg>
+      <div style="flex:1;min-width:0">
+        <div style="font-family:'Marcellus',serif;font-size:23px;letter-spacing:.02em;line-height:1;color:#f6f2e7">The Coleclough Cup</div>
+        <div style="font-size:11.5px;letter-spacing:.13em;text-transform:uppercase;color:#9bb3a3;margin-top:4px">2026 Majors Pool</div>
+      </div>
+      <button onClick="{{downloadSheet}}" style="background:rgba(255,255,255,.08);color:#dCe7df;border:1px solid rgba(255,255,255,.16);border-radius:8px;padding:8px 12px;font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:7px" style-hover="background:rgba(255,255,255,.16)">
+        <span>⤓</span><span style="{{dlTextStyle}}">Results sheet</span>
+      </button>
+      <button onClick="{{refresh}}" style="background:rgba(255,255,255,.08);color:#dCe7df;border:1px solid rgba(255,255,255,.16);border-radius:8px;padding:8px 12px;font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:7px" style-hover="background:rgba(255,255,255,.16)">
+        <span style="{{refreshSpinStyle}}">↻</span><span style="{{refreshTextStyle}}">{{refreshLabel}}</span>
+      </button>
+      <button onClick="{{openYouPicker}}" style="{{youBtnStyle}}" style-hover="filter:brightness(1.08)">{{youBtnLabel}}</button>
+    </div>
+  </header>
+
+  <!-- ===== LOADING ===== -->
+  <sc-if value="{{loading}}" hint-placeholder-val="{{true}}">
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:80px 20px;color:#5c6b60">
+      <div style="width:34px;height:34px;border:3px solid rgba(18,60,39,.15);border-top-color:#123c27;border-radius:50%;animation:ccspin .8s linear infinite"></div>
+      <div style="font-size:13px;letter-spacing:.05em">Loading the leaderboard…</div>
+    </div>
+  </sc-if>
+
+  <!-- ===== APP ===== -->
+  <sc-if value="{{loaded}}" hint-placeholder-val="{{false}}">
+  <main style="flex:1;max-width:1180px;margin:0 auto;width:100%;padding:20px 16px 60px">
+
+    <!-- LIVE RIBBON -->
+    <sc-if value="{{liveOn}}" hint-placeholder-val="{{false}}">
+      <div style="display:flex;align-items:center;gap:9px 12px;background:#0f3a26;color:#e8f0ea;border-radius:10px;padding:9px 10px 9px 14px;margin-bottom:14px;font-size:12.5px;flex-wrap:wrap">
+        <span style="font-weight:700;letter-spacing:.04em">{{liveLabel}}</span>
+        <span style="color:#9bb3a3">{{liveSub}}</span>
+        <span style="margin-left:auto;color:#9bb3a3;font-size:11.5px;white-space:nowrap">{{updatedStamp}}</span>
+        <button onClick="{{openBoard}}" style="display:flex;align-items:center;gap:8px;background:transparent;color:#eef5ef;border:1px solid rgba(232,240,234,.42);border-radius:8px;padding:7px 12px;font-size:12.5px;font-weight:700;white-space:nowrap;flex:none" style-hover="background:rgba(255,255,255,.1);border-color:rgba(232,240,234,.72)">
+          <span style="width:9px;height:9px;border-radius:50%;background:#e0563f;animation:ccpulse 1.3s infinite;flex:none"></span>
+          <span>Leaderboard</span>
+          <span style="opacity:.65">→</span>
+        </button>
+      </div>
+    </sc-if>
+
+    <!-- ===== PRIZE HERO ===== -->
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px">
+      <div style="flex:1 1 240px;background:linear-gradient(165deg,#1b4d33,#123c27);color:#f3efe4;border-radius:14px;padding:16px 18px;position:relative;overflow:hidden;box-shadow:0 4px 16px rgba(18,60,39,.18)">
+        <div style="position:absolute;right:-14px;top:-14px;font-size:88px;opacity:.10;font-family:'Marcellus',serif">①</div>
+        <div style="font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#cBa869;font-weight:700">Overall Pool Champion</div>
+        <div style="font-family:'Marcellus',serif;font-size:21px;margin-top:8px;line-height:1.1">{{ovLeaderName}}</div>
+        <div style="font-size:20px;font-weight:800;margin-top:5px;color:#f6f2e7">{{ovLeaderStr}}</div>
+        <div style="font-size:11.5px;color:#9bb3a3;margin-top:4px">Leads all 56 · across every major</div>
+      </div>
+      <div style="flex:1 1 240px;background:#fbf9f2;border-radius:14px;padding:16px 18px;border:1px solid rgba(18,60,39,.1);box-shadow:0 3px 12px rgba(18,60,39,.07)">
+        <div style="font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#b08d44;font-weight:700">Single-Major Champions</div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:11px;gap:8px">
+          <div style="min-width:0"><div style="font-size:11px;color:#8a988d;text-transform:uppercase;letter-spacing:.06em">Masters</div><div style="font-family:'Marcellus',serif;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{mChampName}}</div></div>
+          <div style="font-weight:700;color:#123c27;white-space:nowrap">{{mChampStr}}</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:9px;gap:8px;padding-top:9px;border-top:1px solid rgba(18,60,39,.08)">
+          <div style="min-width:0"><div style="font-size:11px;color:#8a988d;text-transform:uppercase;letter-spacing:.06em">PGA Champ.</div><div style="font-family:'Marcellus',serif;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{pChampName}}</div></div>
+          <div style="font-weight:700;color:#123c27;white-space:nowrap">{{pChampStr}}</div>
+        </div>
+      </div>
+      <div onClick="{{youCardClick}}" style="{{youCardStyle}}" style-hover="filter:brightness(1.02)">
+        <div style="font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#b08d44;font-weight:700">{{youCardEyebrow}}</div>
+        <div style="font-family:'Marcellus',serif;font-size:19px;margin-top:8px;line-height:1.15">{{youCardTitle}}</div>
+        <div style="font-size:12.5px;color:#5c6b60;margin-top:6px">{{youCardSub}}</div>
+        <div style="font-size:12px;color:#b08d44;margin-top:8px;font-weight:600">{{youCardCta}}</div>
+      </div>
+    </div>
+
+    <!-- ===== NAV TABS ===== -->
+    <div style="display:flex;gap:6px;background:#dcd5c3;border-radius:11px;padding:5px;margin-bottom:16px;overflow-x:auto">
+      <sc-for list="{{navTabs}}" as="t" hint-placeholder-count="4">
+        <button onClick="{{t.onClick}}" style="{{t.style}}">{{t.label}}</button>
+      </sc-for>
+    </div>
+
+    <!-- ===== SECONDARY CONTROLS ===== -->
+    <sc-if value="{{showGroupCtl}}" hint-placeholder-val="{{false}}">
+      <div style="margin-bottom:12px">
+        <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#8a988d;margin-bottom:7px">Choose a group</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <sc-for list="{{groupCtl}}" as="g" hint-placeholder-count="7">
+            <button onClick="{{g.onClick}}" style="{{g.style}}">{{g.label}}</button>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{showSecondary}}" hint-placeholder-val="{{false}}">
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+        <sc-for list="{{secondaryCtl}}" as="s" hint-placeholder-count="4">
+          <button onClick="{{s.onClick}}" style="{{s.style}}">{{s.label}}</button>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <!-- ===== LEADERBOARD ===== -->
+    <sc-if value="{{showBoard}}" hint-placeholder-val="{{true}}">
+    <div style="background:#fbf9f2;border-radius:14px;border:1px solid rgba(18,60,39,.1);overflow:hidden;box-shadow:0 3px 14px rgba(18,60,39,.07)">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:15px 18px 13px;border-bottom:1px solid rgba(18,60,39,.1);flex-wrap:wrap">
+        <div style="font-family:'Marcellus',serif;font-size:18px;color:#123c27">{{scopeHeading}}</div>
+        <div style="font-size:11.5px;color:#8a988d">{{scopeNote}}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:8px 18px;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:#9aa89d;background:rgba(18,60,39,.03);border-bottom:1px solid rgba(18,60,39,.07)">
+        <div style="flex:none;width:30px;text-align:center">#</div>
+        <div style="flex:1">Participant</div>
+        <sc-if value="{{showChips}}" hint-placeholder-val="{{false}}">
+          <div style="width:84px;text-align:right">Masters</div>
+          <div style="width:84px;text-align:right">PGA</div>
+        </sc-if>
+        <div style="min-width:90px;text-align:right">{{primaryLabel}}</div>
+        <div style="flex:none;width:16px"></div>
+      </div>
+      <sc-for list="{{viewRows}}" as="row" hint-placeholder-count="8">
+        <div style="{{row.rowStyle}}" onClick="{{row.onToggle}}" style-hover="background:rgba(18,60,39,.035)">
+          <div style="{{row.rankStyle}}">{{row.rankStr}}</div>
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+              <span style="{{row.nameStyle}}">{{row.name}}</span>
+              <sc-if value="{{row.youTag}}" hint-placeholder-val="{{false}}"><span style="font-size:9.5px;font-weight:800;letter-spacing:.08em;background:#b08d44;color:#fff;padding:2px 6px;border-radius:5px">YOU</span></sc-if>
+              <sc-if value="{{row.leaderTag}}" hint-placeholder-val="{{false}}"><span style="font-size:9.5px;font-weight:700;letter-spacing:.05em;color:#b08d44;border:1px solid rgba(176,141,68,.5);padding:1px 6px;border-radius:5px">◆ GROUP LEAD</span></sc-if>
+            </div>
+            <div style="font-size:11.5px;color:#7a897d;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{row.sub}}</div>
+            <sc-if value="{{row.showBlurbShort}}" hint-placeholder-val="{{false}}">
+              <div style="font-size:11px;color:#9aa89d;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-style:italic">{{row.blurbShort}}</div>
+            </sc-if>
+          </div>
+          <sc-if value="{{showChips}}" hint-placeholder-val="{{false}}">
+            <div style="width:84px;text-align:right"><div style="font-size:13.5px;font-weight:600;color:#33433a;font-variant-numeric:tabular-nums">{{row.mastersStr}}</div></div>
+            <div style="width:84px;text-align:right"><div style="font-size:13.5px;font-weight:600;color:#33433a;font-variant-numeric:tabular-nums">{{row.pgaStr}}</div></div>
+          </sc-if>
+          <div style="min-width:90px;text-align:right">
+            <div style="font-weight:800;font-size:{{primarySize}};color:{{row.primaryColor}};font-variant-numeric:tabular-nums">{{row.primaryStr}}</div>
+            <sc-if value="{{row.showBar}}" hint-placeholder-val="{{false}}">
+              <div style="height:5px;background:rgba(18,60,39,.1);border-radius:3px;margin-top:5px;overflow:hidden"><div style="{{row.barStyle}}"></div></div>
+            </sc-if>
+            <div style="font-size:10.5px;color:#9aa89d;margin-top:2px">{{row.primaryNote}}</div>
+          </div>
+          <div style="flex:none;width:16px;text-align:center;color:#b6c2b8;font-size:12px">{{row.chev}}</div>
+        </div>
+        <sc-if value="{{row.expanded}}" hint-placeholder-val="{{false}}">
+          <div style="padding:6px 18px 18px 60px;background:rgba(18,60,39,.045);border-bottom:1px solid rgba(18,60,39,.08);animation:ccfade .2s">
+            <sc-if value="{{row.showBlurb}}" hint-placeholder-val="{{false}}">
+              <div style="font-style:italic;color:#3c4a40;font-size:13.5px;line-height:1.55;border-left:2px solid #b08d44;padding-left:13px;margin:8px 0 15px;max-width:680px">"{{row.blurb}}"</div>
+            </sc-if>
+            <div style="font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:#9aa89d;margin-bottom:4px">The Six · drafted roster</div>
+            <sc-for list="{{row.picks}}" as="pk" hint-placeholder-count="6">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:8px 0;border-top:1px solid rgba(18,60,39,.08)">
+                <div style="display:flex;align-items:center;gap:9px;min-width:140px;flex:1">
+                  <span style="{{pk.dotStyle}}"></span>
+                  <span style="font-weight:600;font-size:13.5px">{{pk.player}}</span>
+                </div>
+                <div style="display:flex;gap:14px;font-size:12px;color:#5c6b60;flex-wrap:wrap;align-items:center">
+                  <span style="min-width:128px">Masters <b style="color:#19211c">{{pk.mFin}}</b> · <span style="font-variant-numeric:tabular-nums">{{pk.mStr}}</span></span>
+                  <span style="min-width:128px">PGA <b style="color:#19211c">{{pk.pFin}}</b> · <span style="font-variant-numeric:tabular-nums">{{pk.pStr}}</span></span>
+                  <span style="min-width:120px;color:#b08d44;font-weight:700">U.S. Open proj. {{pk.usProjStr}}</span>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+      </sc-for>
+    </div>
+    </sc-if>
+
+    <!-- ===== COMPARE ===== -->
+    <sc-if value="{{showCompare}}" hint-placeholder-val="{{false}}">
+    <div>
+      <div style="background:#fbf9f2;border-radius:14px;border:1px solid rgba(18,60,39,.1);box-shadow:0 3px 14px rgba(18,60,39,.07);padding:16px 18px;margin-bottom:14px">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+          <div style="font-family:'Marcellus',serif;font-size:18px;color:#123c27">Cumulative Earnings — Head to Head</div>
+          <div style="font-size:11.5px;color:#8a988d">{{cmpCountLabel}}</div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:7px 16px;margin-bottom:10px">
+          <sc-for list="{{chart.legend}}" as="lg" hint-placeholder-count="5">
+            <div style="display:flex;align-items:center;gap:7px">
+              <span style="width:13px;height:13px;border-radius:3px;background:{{lg.color}};flex:none"></span>
+              <span style="font-size:12.5px;color:#33433a;font-weight:600">{{lg.name}}</span>
+              <span style="font-size:11.5px;color:#9aa89d;font-variant-numeric:tabular-nums">{{lg.cumStr}}</span>
+            </div>
+          </sc-for>
+          <sc-if value="{{chart.empty}}" hint-placeholder-val="{{false}}">
+            <span style="font-size:12.5px;color:#9aa89d;font-style:italic">Select participants below to plot their season.</span>
+          </sc-if>
+        </div>
+        <div style="width:100%">{{chart.svg}}</div>
+      </div>
+      <div style="display:flex;gap:14px;flex-wrap:wrap">
+        <div style="flex:1 1 300px;background:#fbf9f2;border-radius:14px;border:1px solid rgba(18,60,39,.1);padding:14px 16px">
+          <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#8a988d;margin-bottom:9px">Quick picks</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+            <sc-for list="{{cmpQuick}}" as="q" hint-placeholder-count="5">
+              <button onClick="{{q.onClick}}" style="{{q.style}}" style-hover="filter:brightness(1.15)">{{q.label}}</button>
+            </sc-for>
+          </div>
+          <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#8a988d;margin-bottom:7px">By group</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <sc-for list="{{cmpGroups}}" as="g" hint-placeholder-count="7">
+              <button onClick="{{g.onClick}}" style="background:#1b4d33;color:#eef3ee;border:none;border-radius:8px;padding:7px 11px;font-size:12px;font-weight:600" style-hover="filter:brightness(1.18)">{{g.label}}</button>
+            </sc-for>
+          </div>
+        </div>
+        <div style="flex:2 1 360px;background:#fbf9f2;border-radius:14px;border:1px solid rgba(18,60,39,.1);padding:14px 16px">
+          <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#8a988d;margin-bottom:9px">Select participants ({{cmpMaxNote}})</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;max-height:230px;overflow-y:auto">
+            <sc-for list="{{cmpList}}" as="c" hint-placeholder-count="12">
+              <button onClick="{{c.onToggle}}" style="{{c.style}}">{{c.label}}<span style="opacity:.6;font-weight:500;font-size:11px"> · {{c.cumStr}}</span></button>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ===== FOOTER ===== -->
+    <div style="margin-top:30px;display:flex;gap:16px;flex-wrap:wrap;align-items:stretch">
+      <div style="flex:2 1 380px;background:#fbf9f2;border-radius:14px;border:1px solid rgba(18,60,39,.1);padding:16px 18px">
+        <div style="font-family:'Marcellus',serif;font-size:16px;color:#123c27;margin-bottom:10px">The Three Purses</div>
+        <sc-for list="{{prizes}}" as="pz" hint-placeholder-count="3">
+          <div style="display:flex;gap:10px;padding:7px 0;border-top:1px solid rgba(18,60,39,.08)">
+            <span style="color:#b08d44;font-weight:800;flex:none">●</span>
+            <div><span style="font-weight:700;color:#19211c">{{pz.label}}.</span> <span style="color:#5c6b60;font-size:13px">{{pz.desc}}</span></div>
+          </div>
+        </sc-for>
+        <div style="font-size:11px;color:#9aa89d;margin-top:12px;line-height:1.5">U.S. Open projected earnings are based on each player's current leaderboard position and the USGA prize distribution ($21.5M purse). Tied positions share the average payout across tied slots. Updates each time data.json is refreshed — positions will change across R3 and R4.</div>
+      </div>
+      <div style="flex:1 1 220px;background:#123c27;color:#dCe7df;border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#cBa869;font-weight:700">Brand it your own</div>
+        <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="cc_clublogo" shape="rounded" radius="10" fit="contain" placeholder="Drop your club logo" style="width:100%;height:88px;background:rgba(255,255,255,.06);border:1px dashed rgba(255,255,255,.25);border-radius:10px"></x-import>
+        <div style="font-size:11px;color:#9bb3a3;line-height:1.5">Drop the Capilano G&amp;CC logo here — it sticks for everyone who opens the board.</div>
+        <div style="font-size:11px;color:#9bb3a3;border-top:1px solid rgba(255,255,255,.12);padding-top:9px">{{updatedLabel}}</div>
+      </div>
+    </div>
+
+  </main>
+  </sc-if>
+
+  <!-- ===== U.S. OPEN LIVE LEADERBOARD OVERLAY ===== -->
+  <sc-if value="{{boardOpen}}" hint-placeholder-val="{{false}}">
+    <div onClick="{{closeBoard}}" style="position:fixed;inset:0;background:rgba(10,36,23,.6);z-index:48;display:flex;align-items:flex-start;justify-content:center;padding:38px 14px;backdrop-filter:blur(2px)">
+      <div onClick="{{stopProp}}" style="background:#fbf9f2;border-radius:16px;width:100%;max-width:1000px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 22px 60px rgba(0,0,0,.4)">
+        <div style="background:linear-gradient(160deg,#123c27,#0a2417);color:#f3efe4;padding:16px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <span style="width:9px;height:9px;border-radius:50%;background:#e0563f;animation:ccpulse 1.3s infinite;flex:none"></span>
+          <div style="flex:1;min-width:0">
+            <div style="font-family:'Marcellus',serif;font-size:21px;line-height:1.05">U.S. Open · Live Leaderboard</div>
+            <div style="font-size:11.5px;letter-spacing:.04em;color:#9bb3a3;margin-top:3px">{{boardStatus}}</div>
+          </div>
+          <button onClick="{{closeBoard}}" style="background:rgba(255,255,255,.1);color:#dCe7df;border:1px solid rgba(255,255,255,.18);border-radius:8px;width:34px;height:34px;font-size:17px;line-height:1;flex:none" style-hover="background:rgba(255,255,255,.2)">✕</button>
+        </div>
+        <div style="flex:1;overflow-y:auto;padding:0 0 18px">
+          <sc-if value="{{boardHasMine}}" hint-placeholder-val="{{false}}">
+            <div style="padding:15px 20px 8px;display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap">
+              <div style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#b08d44;font-weight:800">Your players · {{boardMineName}}</div>
+              <div style="font-size:11.5px;color:#8a988d">{{boardMineSummary}}</div>
+            </div>
+            <div style="padding:0 20px">
+              <div style="background:rgba(176,141,68,.1);border:1px solid rgba(176,141,68,.4);border-radius:11px;overflow:hidden">
+                <div style="overflow-x:auto">
+                  <div style="min-width:660px">
+                    <div style="{{boardHeadStyle}}">
+                      <div style="flex:none;width:38px">Pos</div>
+                      <div style="flex:none;width:24px;text-align:center"></div>
+                      <div style="flex:1;min-width:130px">Player</div>
+                      <div style="flex:none;width:52px;text-align:right">Total</div>
+                      <div style="flex:none;width:44px;text-align:right">Thru</div>
+                      <div style="flex:none;width:48px;text-align:right">Today</div>
+                      <div style="flex:none;width:38px;text-align:right">R1</div>
+                      <div style="flex:none;width:38px;text-align:right">R2</div>
+                      <div style="flex:none;width:38px;text-align:right">R3</div>
+                      <div style="flex:none;width:38px;text-align:right">R4</div>
+                      <div style="flex:none;width:72px;text-align:right">Proj. $</div>
+                    </div>
+                    <sc-for list="{{boardMine}}" as="r" hint-placeholder-count="6">
+                      <div style="{{r.rowStyle}}">
+                        <div style="flex:none;width:38px;font-weight:700;font-variant-numeric:tabular-nums;font-size:13.5px;color:#19211c">{{r.posStr}}</div>
+                        <div style="flex:none;width:24px;text-align:center;font-size:11px;font-weight:800;color:{{r.arrowColor}}">{{r.arrowChar}}</div>
+                        <div style="flex:1;min-width:130px;font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{r.name}}</div>
+                        <div style="flex:none;width:52px;text-align:right;font-weight:800;font-variant-numeric:tabular-nums;color:{{r.totalColor}}">{{r.totalStr}}</div>
+                        <div style="flex:none;width:44px;text-align:right;font-size:12.5px;color:#5c6b60;font-variant-numeric:tabular-nums">{{r.thruStr}}</div>
+                        <div style="flex:none;width:48px;text-align:right;font-weight:700;font-variant-numeric:tabular-nums;color:{{r.roundColor}}">{{r.roundStr}}</div>
+                        <div style="flex:none;width:38px;text-align:right;font-size:12.5px;color:#7a897d;font-variant-numeric:tabular-nums">{{r.r1}}</div>
+                        <div style="flex:none;width:38px;text-align:right;font-size:12.5px;color:#7a897d;font-variant-numeric:tabular-nums">{{r.r2}}</div>
+                        <div style="flex:none;width:38px;text-align:right;font-size:12.5px;color:#7a897d;font-variant-numeric:tabular-nums">{{r.r3}}</div>
+                        <div style="flex:none;width:38px;text-align:right;font-size:12.5px;color:#b6c2b8;font-variant-numeric:tabular-nums">{{r.r4}}</div>
+                        <div style="flex:none;width:72px;text-align:right;font-size:12px;color:#b08d44;font-weight:700;font-variant-numeric:tabular-nums">{{r.usProjStr}}</div>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{boardNoMine}}" hint-placeholder-val="{{false}}">
+            <div style="margin:15px 20px 4px;background:rgba(18,60,39,.05);border:1px dashed rgba(18,60,39,.2);border-radius:11px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+              <div style="font-size:13px;color:#3c4a40">Pick your name to pin <b>your six players</b> at the top of the board.</div>
+              <button onClick="{{openYouPicker}}" style="background:#b08d44;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:12.5px;font-weight:700;white-space:nowrap" style-hover="filter:brightness(1.07)">Set your name</button>
+            </div>
+          </sc-if>
+          <div style="padding:18px 20px 8px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#8a988d;font-weight:800">Full field · {{boardFieldCount}} players</div>
+          <div style="padding:0 20px">
+            <div style="overflow-x:auto">
+              <div style="min-width:660px">
+                <div style="{{boardHeadStyle}}">
+                  <div style="flex:none;width:38px">Pos</div>
+                  <div style="flex:none;width:24px;text-align:center"></div>
+                  <div style="flex:1;min-width:130px">Player</div>
+                  <div style="flex:none;width:52px;text-align:right">Total</div>
+                  <div style="flex:none;width:44px;text-align:right">Thru</div>
+                  <div style="flex:none;width:48px;text-align:right">Today</div>
+                  <div style="flex:none;width:38px;text-align:right">R1</div>
+                  <div style="flex:none;width:38px;text-align:right">R2</div>
+                  <div style="flex:none;width:38px;text-align:right">R3</div>
+                  <div style="flex:none;width:38px;text-align:right">R4</div>
+                  <div style="flex:none;width:72px;text-align:right">Proj. $</div>
+                </div>
+                <sc-for list="{{boardField}}" as="r" hint-placeholder-count="14">
+                  <div style="{{r.rowStyle}}">
+                    <div style="flex:none;width:38px;font-weight:700;font-variant-numeric:tabular-nums;font-size:13.5px;color:#19211c">{{r.posStr}}</div>
+                    <div style="flex:none;width:24px;text-align:center;font-size:11px;font-weight:800;color:{{r.arrowColor}}">{{r.arrowChar}}</div>
+                    <div style="flex:1;min-width:130px;font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{r.name}}<sc-if value="{{r.mine}}" hint-placeholder-val="{{false}}"><span style="font-size:9px;font-weight:800;letter-spacing:.07em;background:#b08d44;color:#fff;padding:1px 5px;border-radius:4px;margin-left:7px">YOURS</span></sc-if></div>
+                    <div style="flex:none;width:52px;text-align:right;font-weight:800;font-variant-numeric:tabular-nums;color:{{r.totalColor}}">{{r.totalStr}}</div>
+                    <div style="flex:none;width:44px;text-align:right;font-size:12.5px;color:#5c6b60;font-variant-numeric:tabular-nums">{{r.thruStr}}</div>
+                    <div style="flex:none;width:48px;text-align:right;font-weight:700;font-variant-numeric:tabular-nums;color:{{r.roundColor}}">{{r.roundStr}}</div>
+                    <div style="flex:none;width:38px;text-align:right;font-size:12.5px;color:#7a897d;font-variant-numeric:tabular-nums">{{r.r1}}</div>
+                    <div style="flex:none;width:38px;text-align:right;font-size:12.5px;color:#7a897d;font-variant-numeric:tabular-nums">{{r.r2}}</div>
+                    <div style="flex:none;width:38px;text-align:right;font-size:12.5px;color:#7a897d;font-variant-numeric:tabular-nums">{{r.r3}}</div>
+                    <div style="flex:none;width:38px;text-align:right;font-size:12.5px;color:#b6c2b8;font-variant-numeric:tabular-nums">{{r.r4}}</div>
+                    <div style="flex:none;width:72px;text-align:right;font-size:12px;color:#b08d44;font-weight:700;font-variant-numeric:tabular-nums">{{r.usProjStr}}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+          <div style="padding:14px 20px 0;font-size:11px;color:#9aa89d;line-height:1.5">{{boardFootnote}}</div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ===== YOU PICKER OVERLAY ===== -->
+  <sc-if value="{{youPickerOpen}}" hint-placeholder-val="{{false}}">
+    <div onClick="{{closeYouPicker}}" style="position:fixed;inset:0;background:rgba(10,36,23,.55);z-index:50;display:flex;align-items:flex-start;justify-content:center;padding:60px 16px;backdrop-filter:blur(2px)">
+      <div onClick="{{stopProp}}" style="background:#fbf9f2;border-radius:16px;width:100%;max-width:440px;max-height:80vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 18px 50px rgba(0,0,0,.35)">
+        <div style="padding:18px 20px 12px">
+          <div style="font-family:'Marcellus',serif;font-size:20px;color:#123c27">Who are you?</div>
+          <div style="font-size:12.5px;color:#7a897d;margin-top:3px">Pick your name to spotlight your row and jump to your group.</div>
+          <input value="{{youQuery}}" onInput="{{setYouQuery}}" placeholder="Search names…" style="margin-top:12px;width:100%;padding:10px 13px;border:1px solid rgba(18,60,39,.2);border-radius:9px;font-size:14px;background:#fff"/>
+        </div>
+        <div style="overflow-y:auto;padding:0 10px 10px">
+          <sc-for list="{{filteredYouNames}}" as="n" hint-placeholder-count="10">
+            <button onClick="{{n.onPick}}" style="{{n.style}}">
+              <span style="font-weight:600">{{n.name}}</span>
+              <span style="font-size:11.5px;color:#8a988d">Group {{n.group}} · {{n.cumStr}}</span>
+            </button>
+          </sc-for>
+        </div>
+        <sc-if value="{{hasYou}}" hint-placeholder-val="{{false}}">
+          <button onClick="{{clearYou}}" style="border:none;border-top:1px solid rgba(18,60,39,.1);background:none;color:#a8503f;padding:13px;font-size:13px;font-weight:600">Clear my name</button>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:900},&quot;accentColor&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#b08d44&quot;,&quot;options&quot;:[&quot;#b08d44&quot;,&quot;#1d5138&quot;,&quot;#8a3b3b&quot;],&quot;tsType&quot;:&quot;string&quot;},&quot;showRoasts&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;density&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;Comfortable&quot;,&quot;options&quot;:[&quot;Comfortable&quot;,&quot;Compact&quot;],&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  state = {
+    loaded:false, loading:true, data:null, error:null,
+    tab:'overall', majorLens:'masters', groupLens:'overall', groupSel:1,
+    you:null, expanded:null, youPickerOpen:false, youQuery:'',
+    compareSel:[], refreshing:false, justUpdated:false, hover:null, boardOpen:false, sim:null,
+    vw: (typeof window!=='undefined'? window.innerWidth : 1180)
+  };
+
+  componentDidMount(){
+    try{ const y=localStorage.getItem('cc_you'); if(y) this.setState({you:y}); }catch(e){}
+    this._onResize=()=>{ if(this._rt) cancelAnimationFrame(this._rt); this._rt=requestAnimationFrame(()=>this.setState({vw:window.innerWidth})); };
+    window.addEventListener('resize', this._onResize);
+    this.load();
+    this._auto=setInterval(()=>{ this.load(); }, 60*60*1000);
+  }
+  componentWillUnmount(){ if(this._onResize) window.removeEventListener('resize', this._onResize); if(this._auto) clearInterval(this._auto); }
+
+  async load(){
+    try{
+      const r=await fetch('data.json',{cache:'reload'});
+      const d=await r.json();
+      this.setState(s=>{
+        const top=[...d.participants].sort((a,b)=>b.cumulative-a.cumulative).slice(0,5).map(p=>p.name);
+        let gs=s.groupSel;
+        if(s.you){ const me=d.participants.find(p=>p.name===s.you); if(me) gs=me.group; }
+        return { data:d, loaded:true, loading:false, compareSel:s.compareSel.length?s.compareSel:top, groupSel:gs };
+      });
+    }catch(e){ this.setState({error:String(e), loading:false}); }
+  }
+  refresh(){ if(this.state.refreshing) return; this.setState({refreshing:true}); this.load().then(()=>{ this.setState({refreshing:false, justUpdated:true}); setTimeout(()=>{ this.setState({justUpdated:false}); },2200); }); }
+
+  downloadSheet(){
+    const d=this.state.data; if(!d) return;
+    const P=d.participants;
+    const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const fM=n=>'$'+Math.round(n||0).toLocaleString('en-US');
+    const fShort=n=>'$'+((n||0)/1e6).toFixed(2)+'M';
+    const byCum=[...P].sort((a,b)=>b.cumulative-a.cumulative);
+    const mChamp=[...P].sort((a,b)=>b.masters-a.masters)[0];
+    const pChamp=[...P].sort((a,b)=>b.pga-a.pga)[0];
+    const grp={}; for(let g=1;g<=7;g++){ grp[g]=[...P].filter(p=>p.group===g).sort((a,b)=>b.cumulative-a.cumulative); }
+    const sn=x=>x.replace(/\s*\([A-Z]+\)\s*$/,'').trim();
+    let h='<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Coleclough Cup — Full Results</title><style>*{box-sizing:border-box}body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#19211c;margin:0;background:#fff;padding:34px 26px}h1{font-size:26px;margin:0 0 2px;color:#123c27}h2{font-size:17px;color:#123c27;margin:30px 0 8px;border-bottom:2px solid #b08d44;padding-bottom:5px}.sub{color:#6b7a6f;font-size:13px;margin-bottom:18px}table{border-collapse:collapse;width:100%;font-size:12.5px;margin-bottom:10px}th,td{border:1px solid #d8d2c2;padding:5px 8px;text-align:left}th{background:#123c27;color:#f3efe4;font-weight:600}td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}tr:nth-child(even) td{background:#f7f5ee}.win{display:inline-block;background:#b08d44;color:#fff;border-radius:5px;padding:2px 8px;font-size:12px;font-weight:700;margin:2px 6px 2px 0}.pcard{border:1px solid #d8d2c2;border-radius:8px;padding:10px 13px;margin-bottom:10px;break-inside:avoid}.phead{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;align-items:baseline;margin-bottom:6px}.pname{font-weight:700;font-size:15px;color:#123c27}.pmeta{font-size:12px;color:#6b7a6f}@media print{body{padding:0}h2{page-break-after:avoid}}@page{margin:14mm}</style></head><body>';
+    h+='<h1>The Coleclough Cup — 2026 Full Results</h1><div class="sub">'+esc(d.meta.lastUpdated)+' · generated '+new Date().toLocaleString()+'</div>';
+    h+='<h2>Champions &amp; Purses</h2><p><span class="win">Overall Pool — '+esc(byCum[0].name)+'</span> '+fM(byCum[0].cumulative)+' across all majors</p>';
+    h+='<p><span class="win">Masters — '+esc(mChamp.name)+'</span> '+fM(mChamp.masters)+'   <span class="win">PGA Championship — '+esc(pChamp.name)+'</span> '+fM(pChamp.pga)+'</p>';
+    h+='<p style="font-size:12.5px;color:#6b7a6f">U.S. Open in progress · The Open not yet played.</p><p><b>Group champions (all majors):</b><br>';
+    for(let g=1;g<=7;g++){ h+='<span class="win">Group '+g+' — '+esc(grp[g][0].name)+'</span> '+fM(grp[g][0].cumulative)+'<br>'; }
+    h+='</p><h2>Overall Standings</h2><table><tr><th class="n">#</th><th>Participant</th><th class="n">Grp</th><th class="n">Masters</th><th class="n">PGA</th><th class="n">US Open (proj.)</th><th class="n">The Open</th><th class="n">Cumulative</th></tr>';
+    byCum.forEach((p,i)=>{ h+='<tr><td class="n">'+(i+1)+'</td><td>'+esc(p.name)+'</td><td class="n">'+p.group+'</td><td class="n">'+fM(p.masters)+'</td><td class="n">'+fM(p.pga)+'</td><td class="n">'+fM(p.usOpenProjected||0)+'</td><td class="n">—</td><td class="n"><b>'+fM(p.cumulative)+'</b></td></tr>'; });
+    h+='</table>';
+    for(let g=1;g<=7;g++){
+      h+='<h2>Group '+g+'</h2><table><tr><th class="n">#</th><th>Participant</th><th class="n">Masters</th><th class="n">PGA</th><th class="n">US Open (proj.)</th><th class="n">Cumulative</th></tr>';
+      grp[g].forEach((p,i)=>{ h+='<tr><td class="n">'+(i+1)+'</td><td>'+esc(p.name)+(i===0?' ★':'')+'</td><td class="n">'+fM(p.masters)+'</td><td class="n">'+fM(p.pga)+'</td><td class="n">'+fM(p.usOpenProjected||0)+'</td><td class="n"><b>'+fM(p.cumulative)+'</b></td></tr>'; });
+      h+='</table>';
+    }
+    h+='<h2>Every Roster &amp; Player Results</h2>';
+    byCum.forEach((p,i)=>{
+      h+='<div class="pcard"><div class="phead"><span class="pname">#'+(i+1)+' '+esc(p.name)+'</span><span class="pmeta">Group '+p.group+' · Masters '+fShort(p.masters)+' · PGA '+fShort(p.pga)+' · US Open proj. '+fShort(p.usOpenProjected||0)+' · Cumulative '+fShort(p.cumulative)+'</span></div>';
+      h+='<table><tr><th>Player</th><th>Masters</th><th class="n">Masters $</th><th>PGA</th><th class="n">PGA $</th><th class="n">US Open proj. $</th></tr>';
+      p.picks.forEach(x=>{ h+='<tr><td>'+esc(sn(x.player))+'</td><td>'+esc(x.mastersFinish||'—')+'</td><td class="n">'+fM(x.mastersEarnings)+'</td><td>'+esc(x.pgaFinish||'—')+'</td><td class="n">'+fM(x.pgaEarnings)+'</td><td class="n">'+fM(x.usOpenProjected||0)+'</td></tr>'; });
+      h+='</table></div>';
+    });
+    h+='<p style="font-size:11px;color:#9aa89d;margin-top:24px">Open this file in any browser and print to PDF.</p></body></html>';
+    const blob=new Blob([h],{type:'text/html'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download='Coleclough-Cup-Results.html';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),4000);
+  }
+
+  fmtM(n){ if(n==null) return '—'; if(n===0) return '$0'; return '$'+(n/1e6).toFixed(2)+'M'; }
+  fmtFull(n){ return '$'+Math.round(n||0).toLocaleString('en-US'); }
+  fmtStamp(iso){
+    if(!iso) return 'Data as of the PGA Championship';
+    const d=new Date(iso); if(isNaN(d)) return String(iso);
+    return 'Updated '+d.toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+  }
+  shortName(p){ return p.replace(/\s*\([A-Z]+\)\s*$/,'').trim(); }
+  teamProjEarnings(p){ return p.usOpenProjected||0; }
+
+  buildUsOpenLeaderboard(){
+    const d=this.state.data; if(!d) return {field:[],mine:[],mineName:'',mineSummary:'',live:false};
+    const lb=d.meta.usOpenLeaderboard||null;
+    const projMap={};
+    d.participants.forEach(p=>{ p.picks.forEach(x=>{ const n=this.shortName(x.player); projMap[n]=x.usOpenProjected||0; }); });
+    const names=lb?Object.keys(lb):[];
+    let recs=names.map(name=>{
+      const e=lb[name]||{status:'na'};
+      return { name, status:e.status||'active', pos:e.pos,
+        total:(e.total==null?null:e.total), thru:e.thru, today:(e.today==null?null:e.today),
+        r1:(e.r1==null?null:e.r1), r2:(e.r2==null?null:e.r2),
+        move:(e.move==null?null:e.move), proj:projMap[name]||0 };
+    });
+    const rw=r=>(r.status==='made_cut'||r.status==='active')?0:(r.status==='cut'?1:(r.status==='wd'?2:3));
+    recs.sort((a,b)=> rw(a)-rw(b) || ((a.total==null?999:a.total)-(b.total==null?999:b.total)));
+    recs.forEach(r=>{ r.posStr = r.status==='wd'?'WD':(r.status==='na'?'—':(r.status==='cut'?'CUT':String(r.pos))); });
+    const baseRow='display:flex;align-items:center;gap:10px;padding:9px 12px;border-top:1px solid rgba(18,60,39,.07)';
+    const mineRow='display:flex;align-items:center;gap:10px;padding:9px 12px;border-top:1px solid rgba(176,141,68,.22)';
+    const mineFieldRow='display:flex;align-items:center;gap:10px;padding:9px 12px;border-top:1px solid rgba(18,60,39,.07);background:rgba(176,141,68,.12)';
+    const mk=r=>{
+      const dead=(r.status==='wd'||r.status==='na'||r.status==='cut');
+      const started=!dead && r.today!=null;
+      let arrowChar='–',arrowColor='#b6c2b8';
+      if(!dead && r.move!=null && r.move>0){ arrowChar='▲'; arrowColor='#2f7d4f'; }
+      else if(!dead && r.move!=null && r.move<0){ arrowChar='▼'; arrowColor='#c1492f'; }
+      const projStr=r.proj>0?('$'+(r.proj/1e6).toFixed(2)+'M'):(dead?'CUT':'—');
+      return {
+        name:r.name, mine:false, posStr:r.posStr,
+        arrowChar:dead?'':arrowChar, arrowColor,
+        totalStr:dead?(r.status==='cut'?this.toPar(r.total):'—'):this.toPar(r.total),
+        totalColor:(dead&&r.status!=='cut')?'#b6c2b8':this.parColor(r.total||0),
+        thruStr:dead?'—':(r.thru||'—'),
+        roundStr:dead?'':(started?this.toPar(r.today):'–'),
+        roundColor:(dead||!started)?'#b6c2b8':this.parColor(r.today||0),
+        r1:(r.r1!=null?String(r.r1):'—'), r2:(r.r2!=null?String(r.r2):'—'),
+        r3:'—', r4:'—', usProjStr:projStr, rowStyle:baseRow
+      };
+    };
+    const rowByName={}; recs.forEach((r,i)=>rowByName[r.name]=i);
+    const fieldRows=recs.map(mk);
+    const me=this.state.you?d.participants.find(p=>p.name===this.state.you):null;
+    let mine=[], mineSummary='';
+    if(me){
+      const myNames=me.picks.map(x=>this.shortName(x.player));
+      const mySet=new Set(myNames);
+      const matched=myNames.map(n=>rowByName[n]!=null?recs[rowByName[n]]:null).filter(Boolean)
+        .sort((a,b)=>(a.total==null?999:a.total)-(b.total==null?999:b.total));
+      mine=matched.map(r=>{ const row=mk(r); row.rowStyle=mineRow; return row; });
+      fieldRows.forEach((row,i)=>{ if(mySet.has(recs[i]&&recs[i].name)){ row.mine=true; row.rowStyle=mineFieldRow; } });
+      const live=matched.filter(r=>r.status==='made_cut'||r.status==='active');
+      const best=live[0];
+      mineSummary=best?('best: '+best.name+' '+this.toPar(best.total)+' ('+best.posStr+')'):'tracking your six';
+    }
+    return { field:fieldRows, mine, mineName:me?me.name:'', mineSummary, live:!!lb };
+  }
+
+  toPar(n){ return n===0?'E':(n>0?'+'+n:String(n)); }
+  parColor(n){ return n<0?'#c1492f':'#26352c'; }
+  get accent(){ return this.props.accentColor||'#b08d44'; }
+  navBtnStyle(active){ return active?'flex:1;min-width:96px;background:#123c27;color:#f6f2e7;border:none;border-radius:8px;padding:10px 10px;font-size:13px;font-weight:700;letter-spacing:.01em;white-space:nowrap;box-shadow:0 2px 8px rgba(18,60,39,.25)':'flex:1;min-width:96px;background:transparent;color:#5c6b60;border:none;border-radius:8px;padding:10px 10px;font-size:13px;font-weight:600;white-space:nowrap'; }
+  pillStyle(active){ return active?'background:'+this.accent+';color:#fff;border:1px solid '+this.accent+';border-radius:20px;padding:7px 14px;font-size:12.5px;font-weight:700;white-space:nowrap':'background:#fbf9f2;color:#4c5a50;border:1px solid rgba(18,60,39,.18);border-radius:20px;padding:7px 14px;font-size:12.5px;font-weight:600;white-space:nowrap'; }
+
+  buildRows(list, lens){
+    const sorted=[...list].sort((a,b)=>{
+      if(lens==='usopen') return this.teamProjEarnings(b)-this.teamProjEarnings(a);
+      if(lens==='masters') return b.masters-a.masters;
+      if(lens==='pga') return b.pga-a.pga;
+      return b.cumulative-a.cumulative;
+    });
+    const maxProj=Math.max(1,...sorted.map(p=>this.teamProjEarnings(p)));
+    const isNarrow=this.state.vw<640;
+    const dense=(this.props.density==='Compact');
+    const padV=dense?'9px':(isNarrow?'11px':'13px');
+    const showRoasts=this.props.showRoasts!==false;
+    const A=this.accent;
+    return sorted.map((p,i)=>{
+      const rank=i+1;
+      const you=p.name===this.state.you;
+      let rowStyle='display:flex;align-items:center;gap:12px;padding:'+padV+' '+(isNarrow?'12px':'18px')+';border-bottom:1px solid rgba(18,60,39,.07);position:relative;cursor:pointer;';
+      if(you) rowStyle+='background:rgba(176,141,68,.14);box-shadow:inset 3px 0 0 '+A+';';
+      let rb='flex:none;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12.5px;font-variant-numeric:tabular-nums;';
+      if(rank===1) rb+='background:'+A+';color:#fff;';
+      else if(rank===2) rb+='background:#c4c6c0;color:#2a332c;';
+      else if(rank===3) rb+='background:#c08552;color:#fff;';
+      else rb+='background:#edeadf;color:#6b7a6f;border:1px solid rgba(18,60,39,.1);';
+      let primaryStr,primaryColor='#123c27',primaryNote='',showBar=false,barStyle='';
+      const projVal=this.teamProjEarnings(p);
+      if(lens==='usopen'){
+        primaryStr=this.fmtM(projVal);
+        primaryColor=A; primaryNote='US Open projected'; showBar=true;
+        barStyle='height:100%;width:'+Math.max(4,(projVal/maxProj*100)).toFixed(1)+'%;background:'+A+';border-radius:3px;';
+      } else if(lens==='open'){ primaryStr='—'; primaryColor='#b6c2b8'; primaryNote='tees off later'; }
+      else if(lens==='masters'){ primaryStr=this.fmtM(p.masters); primaryNote='of '+this.fmtM(p.cumulative); }
+      else if(lens==='pga'){ primaryStr=this.fmtM(p.pga); primaryNote='of '+this.fmtM(p.cumulative); }
+      else { primaryStr=this.fmtM(p.cumulative); primaryNote=''; }
+      let sub='Group '+p.group;
+      if(lens==='usopen'){ const best=p.picks.reduce((a,x)=>(x.usOpenProjected||0)>(a.usOpenProjected||0)?x:a,p.picks[0]); sub='Group '+p.group+' · key player: '+this.shortName(best.player)+' '+this.fmtM(best.usOpenProjected||0); }
+      else if(lens==='open'){ sub='Group '+p.group+' · 6 picks locked'; }
+      else if(lens!=='overall'){ sub='Group '+p.group+' · #'+p.overallRank+' overall'; }
+      const picks=p.picks.map(x=>{
+        const projE=x.usOpenProjected||0;
+        const dc=projE>=1000000?A:(projE>=400000?'#2f7d4f':(projE>0?'#5c6b60':'#b6c2b8'));
+        return {
+          player:this.shortName(x.player),
+          mFin:x.mastersFinish||'—', mStr:this.fmtFull(x.mastersEarnings),
+          pFin:x.pgaFinish||'—', pStr:this.fmtFull(x.pgaEarnings),
+          usProjStr:projE>0?this.fmtFull(projE):'CUT / N/A',
+          dotStyle:'width:8px;height:8px;border-radius:50%;background:'+dc+';flex:none'
+        };
+      });
+      return {
+        name:p.name, rankStr:String(rank), rowStyle, rankStyle:rb,
+        nameStyle:'font-weight:600;font-size:'+(isNarrow?'14.5px':'15.5px')+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:'+(isNarrow?'150px':'260px'),
+        youTag:you, leaderTag:(this.state.tab==='group' && p.isGroupLeader),
+        sub, mastersStr:this.fmtM(p.masters), pgaStr:this.fmtM(p.pga),
+        primaryStr, primaryColor, primaryNote, showBar, barStyle,
+        blurbShort:p.blurbShort||'', showBlurbShort:showRoasts && !!(p.blurbShort),
+        blurb:p.blurb||'', showBlurb:showRoasts && !!(p.blurb),
+        expanded:this.state.expanded===p.name, chev:this.state.expanded===p.name?'▾':'▸',
+        picks, onToggle:()=>this.toggle(p.name)
+      };
+    });
+  }
+
+  setTab(t){ this.setState({tab:t, expanded:null}); }
+  setMajorLens(l){ this.setState({majorLens:l, expanded:null}); }
+  setGroupLens(l){ this.setState({groupLens:l, expanded:null}); }
+  setGroup(g){ this.setState({groupSel:g, expanded:null}); }
+  toggle(name){ this.setState(s=>({expanded:s.expanded===name?null:name})); }
+  pickYou(name){ try{localStorage.setItem('cc_you',name);}catch(e){} const me=this.state.data.participants.find(p=>p.name===name); this.setState({you:name, youPickerOpen:false, youQuery:'', groupSel:me?me.group:this.state.groupSel}); }
+  clearYou(){ try{localStorage.removeItem('cc_you');}catch(e){} this.setState({you:null, youPickerOpen:false}); }
+  openBoard(){ this.setState({boardOpen:true}); }
+  closeBoard(){ this.setState({boardOpen:false}); }
+
+  hashStr(s){ let h=2166136261; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); } return h>>>0; }
+
+  renderVals(){
+    const A=this.accent;
+    const refreshing=this.state.refreshing, justUpdated=this.state.justUpdated;
+    const base={
+      loaded:this.state.loaded, loading:this.state.loading && !this.state.loaded,
+      stopProp:(e)=>{ e.stopPropagation(); },
+      openYouPicker:()=>this.setState({youPickerOpen:true}),
+      closeYouPicker:()=>this.setState({youPickerOpen:false, youQuery:''}),
+      youPickerOpen:this.state.youPickerOpen,
+      boardOpen:this.state.boardOpen,
+      openBoard:()=>this.openBoard(),
+      closeBoard:()=>this.closeBoard(),
+      refresh:()=>this.refresh(),
+      refreshLabel: refreshing?'Refreshing':(justUpdated?'Updated':'Refresh'),
+      refreshSpinStyle:'display:inline-block;'+(refreshing?'animation:ccspin .7s linear infinite':''),
+      refreshTextStyle:'',
+      youBtnLabel: this.state.you?('★ '+this.state.you.split(' ')[0]):'☆ Set your name',
+      youBtnStyle:'background:'+(this.state.you?A:'rgba(255,255,255,.08)')+';color:'+(this.state.you?'#fff':'#dCe7df')+';border:1px solid '+(this.state.you?A:'rgba(255,255,255,.16)')+';border-radius:8px;padding:8px 13px;font-size:12.5px;font-weight:700;white-space:nowrap'
+    };
+    if(!this.state.data) return base;
+    const d=this.state.data, P=d.participants;
+    const byCum=[...P].sort((a,b)=>b.cumulative-a.cumulative);
+    const ovLeader=byCum[0];
+    const mChamp=[...P].sort((a,b)=>b.masters-a.masters)[0];
+    const pChamp=[...P].sort((a,b)=>b.pga-a.pga)[0];
+    const grpLeader={};
+    for(let g=1;g<=7;g++){ grpLeader[g]=[...P].filter(p=>p.group===g).sort((a,b)=>b.cumulative-a.cumulative)[0]; }
+    const me=this.state.you?P.find(p=>p.name===this.state.you):null;
+    let youCard;
+    if(me){
+      const gl=grpLeader[me.group];
+      const grank=[...P].filter(p=>p.group===me.group).sort((a,b)=>b.cumulative-a.cumulative).findIndex(p=>p.name===me.name)+1;
+      youCard={ eyebrow:'Your Group · #'+me.group, title:(gl.name===me.name?'You lead Group '+me.group+' 👑':gl.name+' leads'),
+        sub:'You: '+this.fmtM(me.cumulative)+' · '+grank+(grank===1?'st':grank===2?'nd':grank===3?'rd':'th')+' of 8 · overall #'+me.overallRank,
+        cta:'View my group →', click:()=>this.setState({tab:'group', groupSel:me.group, expanded:null}) };
+    } else {
+      youCard={ eyebrow:'Find Yourself', title:'Pick your name', sub:'Spotlight your row and track your group purse.', cta:'Choose your name →', click:()=>this.setState({youPickerOpen:true}) };
+    }
+    const tab=this.state.tab;
+    const navTabs=[
+      {label:'Standings',key:'overall'},{label:'By Major',key:'major'},{label:'My Group',key:'group'},{label:'Compare',key:'compare'}
+    ].map(t=>({label:t.label, onClick:()=>this.setTab(t.key), style:this.navBtnStyle(tab===t.key)}));
+    const majorDefs=[['masters','Masters'],['pga','PGA Champ.'],['usopen','U.S. Open'],['open','The Open']];
+    let showSecondary=false, secondaryCtl=[], showGroupCtl=false, groupCtl=[];
+    let lens='overall', scope=P, scopeHeading='Overall Standings', scopeNote=P.length+' participants · all four majors';
+    if(tab==='major'){
+      showSecondary=true; lens=this.state.majorLens;
+      secondaryCtl=majorDefs.map(([k,l])=>({label:l,onClick:()=>this.setMajorLens(k),style:this.pillStyle(lens===k)}));
+      const mj=d.meta.majors.find(m=>m.key===lens);
+      scopeHeading=mj.name; scopeNote=mj.venue+(mj.status==='complete'?' · final':mj.status==='in_progress'?' · in progress':' · upcoming');
+    }
+    if(tab==='group'){
+      showGroupCtl=true; showSecondary=true;
+      const gs=this.state.groupSel; lens=this.state.groupLens;
+      groupCtl=[1,2,3,4,5,6,7].map(g=>({label:'Group '+g,onClick:()=>this.setGroup(g),style:this.pillStyle(gs===g)}));
+      secondaryCtl=[['overall','Overall'],...majorDefs].map(([k,l])=>({label:l,onClick:()=>this.setGroupLens(k),style:this.pillStyle(lens===k)}));
+      scope=P.filter(p=>p.group===gs);
+      const lensLabel=lens==='overall'?'Overall':(majorDefs.find(m=>m[0]===lens)||['','?'])[1];
+      scopeHeading='Group '+gs+' · '+lensLabel;
+      const gl=grpLeader[gs];
+      scopeNote='8 players · purse leader: '+gl.name;
+    }
+    const isNarrow=this.state.vw<640;
+    const showChips=(lens==='overall') && this.state.vw>=780;
+    const primaryLabel=lens==='usopen'?'US Open proj.':lens==='masters'?'Masters $':lens==='pga'?'PGA $':lens==='open'?'Status':'Cumulative';
+    const viewRows=(tab==='compare')?[]:this.buildRows(scope,lens);
+
+    // compare chart
+    const sel=this.state.compareSel;
+    const palette=['#123c27','#b08d44','#2f7d4f','#a8503f','#4f6f96','#7a5a9a','#c97b3f','#3f8c8c','#9a5a5a','#5a7a3f'];
+    const selPart=byCum.filter(p=>sel.includes(p.name));
+    const colorOf={}; selPart.forEach((p,i)=>colorOf[p.name]=palette[i%palette.length]);
+    const maxY=Math.max(2e6,...selPart.map(p=>p.cumulative));
+    const niceY=Math.ceil(maxY/1e6)*1e6;
+    const L=82,R=104,T=20,W=1000; const plotW=W-L-R, plotH=384;
+    const xlabels=['Masters','PGA','US Open','British Open'];
+    const xsubs=['Augusta','Aronimink','Shinnecock','R. Birkdale'];
+    const xs=[0,1,2,3].map(i=>L+i*(plotW/3));
+    const yOf=v=>T+plotH-(v/niceY)*plotH;
+    const completeCount=d.meta.majors.filter(m=>m.status==='complete').length;
+    const cumAt=(p,xi)=>xi===0?p.masters:xi===1?p.cumulative:null;
+    const hover=this.state.hover;
+    const series=selPart.map(p=>{
+      const col=colorOf[p.name];
+      const pts=[]; for(let xi=0;xi<completeCount;xi++) pts.push(xs[xi]+','+yOf(cumAt(p,xi)));
+      const dim=(hover!=null)?'0.5':'1';
+      const endXi=completeCount-1;
+      return {label:p.name.split(' ')[0],color:col,pts:pts.join(' '),dim,lx:xs[endXi]+8,ly:yOf(cumAt(p,endXi))+4};
+    });
+    const dots=[];
+    selPart.forEach(p=>{ const col=colorOf[p.name]; for(let xi=0;xi<completeCount;xi++) dots.push({x:xs[xi],y:yOf(cumAt(p,xi)),r:4.5,color:col,dim:(hover!=null?'0.5':'1')}); });
+    const gap=plotW/3;
+    const bands=[];
+    for(let xi=0;xi<completeCount;xi++){
+      bands.push({x:xs[xi]-gap/2,w:gap,fill:(hover&&hover.xi===xi)?'rgba(18,60,39,.05)':'transparent',onHover:()=>{ if(!this.state.hover||this.state.hover.xi!==xi) this.setState({hover:{xi}}); }});
+    }
+    let tip=null;
+    if(hover && selPart.length){
+      const xi=hover.xi;
+      const ranked=[...selPart].map(p=>({name:p.name,color:colorOf[p.name],v:cumAt(p,xi)})).sort((a,b)=>b.v-a.v);
+      const rowH=22,headH=40,pad=14,bh=headH+ranked.length*rowH+10,bw=246;
+      const px=xs[xi]; let bx=px+18; if(bx+bw>W-4) bx=px-18-bw; bx=Math.max(4,bx);
+      let by=Math.max(22,Math.min(40,404-bh-4)); if(by+bh>404) by=Math.max(4,404-bh);
+      const rows=ranked.map((r,i)=>({rank:String(i+1),name:r.name.length>17?r.name.slice(0,16)+'…':r.name,val:this.fmtFull(r.v),color:r.color,dotx:bx+pad+4,rankx:bx+pad+16,namex:bx+pad+30,valx:bx+bw-pad,dy:by+headH+i*rowH-4,ty:by+headH+i*rowH}));
+      tip={px,bx,by,bw,bh,title:'After the '+xlabels[xi],htx:bx+pad,hty:by+24,lineY:by+headH-12,lx1:bx+pad,lx2:bx+bw-pad,rows};
+    }
+    const yticks=[0,.25,.5,.75,1].map(f=>({y:yOf(niceY*f),ty:yOf(niceY*f)+4,label:this.fmtM(niceY*f)}));
+    const xticks=xs.map((x,i)=>({x,label:xlabels[i],sub:xsubs[i],color:i<completeCount?'#33433a':'#b6c2b8',weight:i<completeCount?'700':'400'}));
+    const legend=selPart.map(p=>({name:p.name,color:colorOf[p.name],cumStr:this.fmtM(p.cumulative)}));
+    const futX=(xs[completeCount-1]+xs[completeCount])/2;
+    const plotRight=L+plotW;
+    const h=React.createElement;
+    const kids=[];
+    kids.push(h('rect',{key:'fut',x:futX,y:20,width:plotRight-futX,height:plotH,fill:'rgba(18,60,39,.04)'}));
+    kids.push(h('text',{key:'futl',x:(futX+plotRight)/2,y:40,textAnchor:'middle',fontSize:13,fill:'#b6c2b8',fontStyle:'italic'},'Upcoming majors'));
+    yticks.forEach((yt,i)=>{ kids.push(h('line',{key:'yl'+i,x1:L,y1:yt.y,x2:plotRight,y2:yt.y,stroke:'rgba(18,60,39,.09)',strokeWidth:1})); kids.push(h('text',{key:'yt'+i,x:L-12,y:yt.ty,textAnchor:'end',fontSize:13,fill:'#7a897d',fontWeight:600},yt.label)); });
+    xs.forEach((x,i)=>kids.push(h('line',{key:'vl'+i,x1:x,y1:20,x2:x,y2:404,stroke:'rgba(18,60,39,.06)',strokeWidth:1})));
+    xticks.forEach((xt,i)=>{ kids.push(h('text',{key:'xl'+i,x:xt.x,y:430,textAnchor:'middle',fontSize:13.5,fill:xt.color,fontWeight:xt.weight},xt.label)); kids.push(h('text',{key:'xs'+i,x:xt.x,y:448,textAnchor:'middle',fontSize:11,fill:'#b6c2b8'},xt.sub)); });
+    series.forEach((se,i)=>{ kids.push(h('polyline',{key:'sp'+i,points:se.pts,fill:'none',stroke:se.color,strokeWidth:3,strokeLinejoin:'round',strokeLinecap:'round',opacity:se.dim})); kids.push(h('text',{key:'sl'+i,x:se.lx,y:se.ly,fontSize:12.5,fill:se.color,fontWeight:700,opacity:se.dim},se.label)); });
+    dots.forEach((dt,i)=>kids.push(h('circle',{key:'dc'+i,cx:dt.x,cy:dt.y,r:dt.r,fill:dt.color,stroke:'#fbf9f2',strokeWidth:1.5,opacity:dt.dim})));
+    bands.forEach((bd,i)=>kids.push(h('rect',{key:'bd'+i,x:bd.x,y:20,width:bd.w,height:plotH,fill:bd.fill,style:{cursor:'pointer'},onMouseEnter:bd.onHover,onMouseMove:bd.onHover,onClick:bd.onHover})));
+    if(tip){
+      const tk=[];
+      tk.push(h('line',{key:'tpl',x1:tip.px,y1:20,x2:tip.px,y2:404,stroke:'#123c27',strokeWidth:1,strokeDasharray:'3 3',opacity:.45}));
+      tk.push(h('rect',{key:'tpb',x:tip.bx,y:tip.by,width:tip.bw,height:tip.bh,rx:10,fill:'#0a2417',opacity:.97}));
+      tk.push(h('text',{key:'tpt',x:tip.htx,y:tip.hty,fontSize:13,fontWeight:700,fill:'#cba869',letterSpacing:'.03em'},tip.title));
+      tk.push(h('line',{key:'tpd',x1:tip.lx1,y1:tip.lineY,x2:tip.lx2,y2:tip.lineY,stroke:'rgba(255,255,255,.13)',strokeWidth:1}));
+      tip.rows.forEach((r,i)=>{ tk.push(h('circle',{key:'rc'+i,cx:r.dotx,cy:r.dy,r:4.5,fill:r.color})); tk.push(h('text',{key:'rr'+i,x:r.rankx,y:r.ty,fontSize:12.5,fill:'#7e9486',fontWeight:700},r.rank)); tk.push(h('text',{key:'rn'+i,x:r.namex,y:r.ty,fontSize:12.5,fill:'#f3efe4',fontWeight:600},r.name)); tk.push(h('text',{key:'rv'+i,x:r.valx,y:r.ty,textAnchor:'end',fontSize:12.5,fill:'#dce7df',fontWeight:700},r.val)); });
+      kids.push(h('g',{key:'tip'},tk));
+    }
+    const svg=h('svg',{viewBox:'0 0 1000 470',style:{width:'100%',height:'auto',display:'block',touchAction:'none'},fontFamily:"'Public Sans',sans-serif",onMouseLeave:()=>{ if(this.state.hover) this.setState({hover:null}); }},kids);
+    const chart={svg,legend,empty:selPart.length===0};
+    const qpStyle='background:#123c27;color:#f3efe4;border:none;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600';
+    const cmpQuick=[
+      {label:'Top 3',style:qpStyle,onClick:()=>this.setState({compareSel:byCum.slice(0,3).map(p=>p.name),hover:null})},
+      {label:'Top 5',style:qpStyle,onClick:()=>this.setState({compareSel:byCum.slice(0,5).map(p=>p.name),hover:null})},
+      {label:'Top 10',style:qpStyle,onClick:()=>this.setState({compareSel:byCum.slice(0,10).map(p=>p.name),hover:null})},
+    ];
+    if(me) cmpQuick.push({label:'My Group',style:'background:'+A+';color:#fff;border:none;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:700',onClick:()=>this.setState({compareSel:P.filter(p=>p.group===me.group).slice(0,10).map(p=>p.name),hover:null})});
+    cmpQuick.push({label:'Clear',style:'background:#a8503f;color:#fff;border:none;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600',onClick:()=>this.setState({compareSel:[],hover:null})});
+    const cmpGroups=[1,2,3,4,5,6,7].map(g=>({label:'Group '+g,onClick:()=>this.setState({compareSel:P.filter(p=>p.group===g).slice(0,10).map(p=>p.name),hover:null})}));
+    const cmpList=byCum.map(p=>{ const on=sel.includes(p.name); return {label:p.name,cumStr:this.fmtM(p.cumulative),style:(on?'background:'+A+';color:#fff;border:1px solid '+A:'background:#fff;color:#4c5a50;border:1px solid rgba(18,60,39,.16)')+';border-radius:8px;padding:6px 10px;font-size:12.5px;font-weight:600;text-align:left',onToggle:()=>{ this.setState(s=>({hover:null,compareSel:s.compareSel.includes(p.name)?s.compareSel.filter(n=>n!==p.name):(s.compareSel.length>=10?s.compareSel:[...s.compareSel,p.name])})); }}; });
+    const q=this.state.youQuery.toLowerCase();
+    const filteredYouNames=byCum.filter(p=>p.name.toLowerCase().includes(q)).map(p=>({name:p.name,group:p.group,cumStr:this.fmtM(p.cumulative),style:'width:100%;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:10px;background:'+(p.name===this.state.you?'rgba(176,141,68,.15)':'transparent')+';border:none;border-radius:9px;padding:11px 12px;font-size:14px;color:#19211c',onPick:()=>this.pickYou(p.name)}));
+    const usO=d.meta.majors.find(m=>m.key==='usopen');
+    // FIX: show live ribbon when US Open is in_progress
+    const liveOn=usO && usO.status==='in_progress';
+    const board=this.state.boardOpen?this.buildUsOpenLeaderboard():{field:[],mine:[],mineName:'',mineSummary:'',live:false};
+    const boardHeadStyle='display:flex;align-items:center;gap:10px;padding:7px 12px;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#9aa89d;background:rgba(18,60,39,.04);border-bottom:1px solid rgba(18,60,39,.08)';
+    const roundLabel=(d.meta.usOpenRound&&d.meta.usOpenRound.label)||'Round in progress';
+    const boardStatus=board.live?('Shinnecock Hills GC · '+roundLabel+' · Par 70'):'Shinnecock Hills GC · Par 70';
+    const boardFootnote='Projected earnings based on current leaderboard position and USGA prize distribution ($21.5M). Updates each time data is refreshed. Tied positions share the average payout. · '+this.fmtStamp(d.meta.updatedAt);
+    return Object.assign(base,{
+      ovLeaderName:ovLeader.name, ovLeaderStr:this.fmtM(ovLeader.cumulative),
+      mChampName:mChamp.name, mChampStr:this.fmtM(mChamp.masters),
+      pChampName:pChamp.name, pChampStr:this.fmtM(pChamp.pga),
+      youCardEyebrow:youCard.eyebrow, youCardTitle:youCard.title, youCardSub:youCard.sub, youCardCta:youCard.cta, youCardClick:youCard.click,
+      youCardStyle:'flex:1 1 240px;background:#fbf9f2;border-radius:14px;padding:16px 18px;border:1px solid '+(me?'rgba(176,141,68,.5)':'rgba(18,60,39,.1)')+';box-shadow:0 3px 12px rgba(18,60,39,.07);cursor:pointer',
+      hasYou:!!me,
+      liveOn, liveLabel:'U.S. OPEN · LIVE', liveSub:'Shinnecock Hills · R3 In Progress',
+      updatedStamp:this.fmtStamp(d.meta.updatedAt),
+      boardField:board.field, boardMine:board.mine, boardHasMine:board.mine.length>0,
+      boardNoMine:!this.state.you, boardMineName:board.mineName, boardMineSummary:board.mineSummary,
+      boardFieldCount:board.field.length, boardHeadStyle, boardStatus, boardFootnote,
+      navTabs, showSecondary, secondaryCtl, showGroupCtl, groupCtl,
+      showBoard:tab!=='compare', showCompare:tab==='compare',
+      scopeHeading, scopeNote, primaryLabel, showChips,
+      primarySize:isNarrow?'15px':'16.5px', viewRows,
+      chart, cmpQuick, cmpGroups, cmpList,
+      cmpCountLabel:sel.length?(sel.length+' selected'):'none selected', cmpMaxNote:'max 10',
+      downloadSheet:()=>this.downloadSheet(), dlTextStyle:'',
+      prizes:d.meta.prizes, updatedLabel:d.meta.lastUpdated,
+      youQuery:this.state.youQuery, setYouQuery:(e)=>this.setState({youQuery:e.target.value}), filteredYouNames, clearYou:()=>this.clearYou()
+    });
+  }
+}
+</script>
+</body>
+</html>
