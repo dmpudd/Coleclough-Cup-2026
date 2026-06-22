@@ -208,7 +208,7 @@ button{font-family:inherit;cursor:pointer}
                 <div style="display:flex;gap:14px;font-size:12px;color:#5c6b60;flex-wrap:wrap;align-items:center">
                   <span style="min-width:128px">Masters <b style="color:#19211c">{{pk.mFin}}</b> · <span style="font-variant-numeric:tabular-nums">{{pk.mStr}}</span></span>
                   <span style="min-width:128px">PGA <b style="color:#19211c">{{pk.pFin}}</b> · <span style="font-variant-numeric:tabular-nums">{{pk.pStr}}</span></span>
-                  <span style="min-width:120px;color:#b08d44;font-weight:700">U.S. Open proj. {{pk.usProjStr}}</span>
+                  <span style="min-width:120px;color:#b08d44;font-weight:700">U.S. Open {{pk.usOpenFinish}} {{pk.usProjStr}}</span>
                 </div>
               </div>
             </sc-for>
@@ -277,7 +277,7 @@ button{font-family:inherit;cursor:pointer}
             <div><span style="font-weight:700;color:#19211c">{{pz.label}}.</span> <span style="color:#5c6b60;font-size:13px">{{pz.desc}}</span></div>
           </div>
         </sc-for>
-        <div style="font-size:11px;color:#9aa89d;margin-top:12px;line-height:1.5">U.S. Open projected earnings are based on each player's current leaderboard position and the USGA prize distribution ($21.5M purse). Tied positions share the average payout across tied slots. Updates each time data.json is refreshed — positions will change across R3 and R4.</div>
+        <div style="font-size:11px;color:#9aa89d;margin-top:12px;line-height:1.5">U.S. Open final results. Wyndham Clark wins at Shinnecock Hills. Payouts from official Golf Channel data ($22.5M purse). Pool rule: missed cut = $0.</div>
       </div>
       <div style="flex:1 1 220px;background:#123c27;color:#dCe7df;border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:10px">
         <div style="font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#cBa869;font-weight:700">Brand it your own</div>
@@ -468,19 +468,19 @@ class Component extends DCLogic {
     h+='<p><span class="win">Masters — '+esc(mChamp.name)+'</span> '+fM(mChamp.masters)+'   <span class="win">PGA Championship — '+esc(pChamp.name)+'</span> '+fM(pChamp.pga)+'</p>';
     h+='<p style="font-size:12.5px;color:#6b7a6f">U.S. Open in progress · The Open not yet played.</p><p><b>Group champions (all majors):</b><br>';
     for(let g=1;g<=7;g++){ h+='<span class="win">Group '+g+' — '+esc(grp[g][0].name)+'</span> '+fM(grp[g][0].cumulative)+'<br>'; }
-    h+='</p><h2>Overall Standings</h2><table><tr><th class="n">#</th><th>Participant</th><th class="n">Grp</th><th class="n">Masters</th><th class="n">PGA</th><th class="n">US Open (proj.)</th><th class="n">The Open</th><th class="n">Cumulative</th></tr>';
+    h+='</p><h2>Overall Standings</h2><table><tr><th class="n">#</th><th>Participant</th><th class="n">Grp</th><th class="n">Masters</th><th class="n">PGA</th><th class="n">US Open</th><th class="n">The Open</th><th class="n">Cumulative</th></tr>';
     byCum.forEach((p,i)=>{ h+='<tr><td class="n">'+(i+1)+'</td><td>'+esc(p.name)+'</td><td class="n">'+p.group+'</td><td class="n">'+fM(p.masters)+'</td><td class="n">'+fM(p.pga)+'</td><td class="n">'+fM(p.usOpenProjected||0)+'</td><td class="n">—</td><td class="n"><b>'+fM(p.cumulative)+'</b></td></tr>'; });
     h+='</table>';
     for(let g=1;g<=7;g++){
-      h+='<h2>Group '+g+'</h2><table><tr><th class="n">#</th><th>Participant</th><th class="n">Masters</th><th class="n">PGA</th><th class="n">US Open (proj.)</th><th class="n">Cumulative</th></tr>';
+      h+='<h2>Group '+g+'</h2><table><tr><th class="n">#</th><th>Participant</th><th class="n">Masters</th><th class="n">PGA</th><th class="n">US Open</th><th class="n">Cumulative</th></tr>';
       grp[g].forEach((p,i)=>{ h+='<tr><td class="n">'+(i+1)+'</td><td>'+esc(p.name)+(i===0?' ★':'')+'</td><td class="n">'+fM(p.masters)+'</td><td class="n">'+fM(p.pga)+'</td><td class="n">'+fM(p.usOpenProjected||0)+'</td><td class="n"><b>'+fM(p.cumulative)+'</b></td></tr>'; });
       h+='</table>';
     }
     h+='<h2>Every Roster &amp; Player Results</h2>';
     byCum.forEach((p,i)=>{
       h+='<div class="pcard"><div class="phead"><span class="pname">#'+(i+1)+' '+esc(p.name)+'</span><span class="pmeta">Group '+p.group+' · Masters '+fShort(p.masters)+' · PGA '+fShort(p.pga)+' · US Open proj. '+fShort(p.usOpenProjected||0)+' · Cumulative '+fShort(p.cumulative)+'</span></div>';
-      h+='<table><tr><th>Player</th><th>Masters</th><th class="n">Masters $</th><th>PGA</th><th class="n">PGA $</th><th class="n">US Open proj. $</th></tr>';
-      p.picks.forEach(x=>{ h+='<tr><td>'+esc(sn(x.player))+'</td><td>'+esc(x.mastersFinish||'—')+'</td><td class="n">'+fM(x.mastersEarnings)+'</td><td>'+esc(x.pgaFinish||'—')+'</td><td class="n">'+fM(x.pgaEarnings)+'</td><td class="n">'+fM(x.usOpenProjected||0)+'</td></tr>'; });
+      h+='<table><tr><th>Player</th><th>Masters</th><th class="n">Masters $</th><th>PGA</th><th class="n">PGA $</th><th>US Open</th><th class="n">US Open $</th></tr>';
+      p.picks.forEach(x=>{ h+='<tr><td>'+esc(sn(x.player))+'</td><td>'+esc(x.mastersFinish||'—')+'</td><td class="n">'+fM(x.mastersEarnings)+'</td><td>'+esc(x.pgaFinish||'—')+'</td><td class="n">'+fM(x.pgaEarnings)+'</td><td>'+esc(x.usOpenFinish||'—')+'</td><td class="n">'+fM(x.usOpenProjected||0)+'</td></tr>'; });
       h+='</table></div>';
     });
     h+='<p style="font-size:11px;color:#9aa89d;margin-top:24px">Open this file in any browser and print to PDF.</p></body></html>';
@@ -536,7 +536,7 @@ class Component extends DCLogic {
         roundStr:dead?'':(started?this.toPar(r.today):'–'),
         roundColor:(dead||!started)?'#b6c2b8':this.parColor(r.today||0),
         r1:(r.r1!=null?String(r.r1):'—'), r2:(r.r2!=null?String(r.r2):'—'),
-        r3:'—', r4:'—', usProjStr:projStr, rowStyle:baseRow
+        r3:'—', r4:'—', usProjStr:projStr, usOpenFinish:x.usOpenFinish||'', rowStyle:baseRow
       };
     };
     const rowByName={}; recs.forEach((r,i)=>rowByName[r.name]=i);
@@ -590,14 +590,14 @@ class Component extends DCLogic {
       const projVal=this.teamProjEarnings(p);
       if(lens==='usopen'){
         primaryStr=this.fmtM(projVal);
-        primaryColor=A; primaryNote='US Open projected'; showBar=true;
+        primaryColor=A; primaryNote='US Open actual'; showBar=true;
         barStyle='height:100%;width:'+Math.max(4,(projVal/maxProj*100)).toFixed(1)+'%;background:'+A+';border-radius:3px;';
       } else if(lens==='open'){ primaryStr='—'; primaryColor='#b6c2b8'; primaryNote='tees off later'; }
       else if(lens==='masters'){ primaryStr=this.fmtM(p.masters); primaryNote='of '+this.fmtM(p.cumulative); }
       else if(lens==='pga'){ primaryStr=this.fmtM(p.pga); primaryNote='of '+this.fmtM(p.cumulative); }
       else { primaryStr=this.fmtM(p.cumulative); primaryNote=''; }
       let sub='Group '+p.group;
-      if(lens==='usopen'){ const best=p.picks.reduce((a,x)=>(x.usOpenProjected||0)>(a.usOpenProjected||0)?x:a,p.picks[0]); sub='Group '+p.group+' · key player: '+this.shortName(best.player)+' '+this.fmtM(best.usOpenProjected||0); }
+      if(lens==='usopen'){ const best=p.picks.reduce((a,x)=>(x.usOpenProjected||0)>(a.usOpenProjected||0)?x:a,p.picks[0]); sub='Group '+p.group+' · best pick: '+this.shortName(best.player)+' '+(best.usOpenFinish||'')+'  '+this.fmtM(best.usOpenProjected||0); }
       else if(lens==='open'){ sub='Group '+p.group+' · 6 picks locked'; }
       else if(lens!=='overall'){ sub='Group '+p.group+' · #'+p.overallRank+' overall'; }
       const picks=p.picks.map(x=>{
@@ -607,7 +607,7 @@ class Component extends DCLogic {
           player:this.shortName(x.player),
           mFin:x.mastersFinish||'—', mStr:this.fmtFull(x.mastersEarnings),
           pFin:x.pgaFinish||'—', pStr:this.fmtFull(x.pgaEarnings),
-          usProjStr:projE>0?this.fmtFull(projE):'CUT / N/A',
+          usProjStr:projE>0?this.fmtFull(projE):'CUT',
           dotStyle:'width:8px;height:8px;border-radius:50%;background:'+dc+';flex:none'
         };
       });
@@ -686,7 +686,7 @@ class Component extends DCLogic {
       showSecondary=true; lens=this.state.majorLens;
       secondaryCtl=majorDefs.map(([k,l])=>({label:l,onClick:()=>this.setMajorLens(k),style:this.pillStyle(lens===k)}));
       const mj=d.meta.majors.find(m=>m.key===lens);
-      scopeHeading=mj.name; scopeNote=mj.venue+(mj.status==='complete'?' · final':mj.status==='in_progress'?' · in progress':' · upcoming');
+      scopeHeading=mj.name; scopeNote=mj.venue+(mj.status==='complete'?' · final results':mj.status==='in_progress'?' · in progress':' · upcoming');
     }
     if(tab==='group'){
       showGroupCtl=true; showSecondary=true;
@@ -701,7 +701,7 @@ class Component extends DCLogic {
     }
     const isNarrow=this.state.vw<640;
     const showChips=(lens==='overall') && this.state.vw>=780;
-    const primaryLabel=lens==='usopen'?'US Open proj.':lens==='masters'?'Masters $':lens==='pga'?'PGA $':lens==='open'?'Status':'Cumulative';
+    const primaryLabel=lens==='usopen'?'US Open':lens==='masters'?'Masters $':lens==='pga'?'PGA $':lens==='open'?'Status':'Cumulative';
     const viewRows=(tab==='compare')?[]:this.buildRows(scope,lens);
 
     // compare chart
@@ -788,7 +788,7 @@ class Component extends DCLogic {
     const boardHeadStyle='display:flex;align-items:center;gap:10px;padding:7px 12px;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#9aa89d;background:rgba(18,60,39,.04);border-bottom:1px solid rgba(18,60,39,.08)';
     const roundLabel=(d.meta.usOpenRound&&d.meta.usOpenRound.label)||'Round in progress';
     const boardStatus=board.live?('Shinnecock Hills GC · '+roundLabel+' · Par 70'):'Shinnecock Hills GC · Par 70';
-    const boardFootnote='Projected earnings based on current leaderboard position and USGA prize distribution ($21.5M). Updates each time data is refreshed. Tied positions share the average payout. · '+this.fmtStamp(d.meta.updatedAt);
+    const boardFootnote=(usO&&usO.status==='complete'?'Final results. Wyndham Clark wins the 2026 U.S. Open at Shinnecock Hills. Official payouts from $22.5M purse. Pool rule: missed cut = $0.':'Projected earnings based on current leaderboard position and USGA prize distribution ($22.5M). Updates each time data is refreshed. Tied positions share the average payout.')+' · '+this.fmtStamp(d.meta.updatedAt);
     return Object.assign(base,{
       ovLeaderName:ovLeader.name, ovLeaderStr:this.fmtM(ovLeader.cumulative),
       mChampName:mChamp.name, mChampStr:this.fmtM(mChamp.masters),
@@ -796,7 +796,7 @@ class Component extends DCLogic {
       youCardEyebrow:youCard.eyebrow, youCardTitle:youCard.title, youCardSub:youCard.sub, youCardCta:youCard.cta, youCardClick:youCard.click,
       youCardStyle:'flex:1 1 240px;background:#fbf9f2;border-radius:14px;padding:16px 18px;border:1px solid '+(me?'rgba(176,141,68,.5)':'rgba(18,60,39,.1)')+';box-shadow:0 3px 12px rgba(18,60,39,.07);cursor:pointer',
       hasYou:!!me,
-      liveOn, liveLabel:'U.S. OPEN · LIVE', liveSub:'Shinnecock Hills · R3 In Progress',
+      liveOn, liveLabel:'U.S. OPEN · LIVE', liveSub:'Shinnecock Hills · Final Round',
       updatedStamp:this.fmtStamp(d.meta.updatedAt),
       boardField:board.field, boardMine:board.mine, boardHasMine:board.mine.length>0,
       boardNoMine:!this.state.you, boardMineName:board.mineName, boardMineSummary:board.mineSummary,
