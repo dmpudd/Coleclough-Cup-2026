@@ -469,16 +469,16 @@ class Component extends DCLogic {
     h+='<p style="font-size:12.5px;color:#6b7a6f">U.S. Open in progress · The Open not yet played.</p><p><b>Group champions (all majors):</b><br>';
     for(let g=1;g<=7;g++){ h+='<span class="win">Group '+g+' — '+esc(grp[g][0].name)+'</span> '+fM(grp[g][0].cumulative)+'<br>'; }
     h+='</p><h2>Overall Standings</h2><table><tr><th class="n">#</th><th>Participant</th><th class="n">Grp</th><th class="n">Masters</th><th class="n">PGA</th><th class="n">US Open</th><th class="n">The Open</th><th class="n">Cumulative</th></tr>';
-    byCum.forEach((p,i)=>{ h+='<tr><td class="n">'+(i+1)+'</td><td>'+esc(p.name)+'</td><td class="n">'+p.group+'</td><td class="n">'+fM(p.masters)+'</td><td class="n">'+fM(p.pga)+'</td><td class="n">'+fM(p.usOpenProjected||0)+'</td><td class="n">—</td><td class="n"><b>'+fM(p.cumulative)+'</b></td></tr>'; });
+    byCum.forEach((p,i)=>{ h+='<tr><td class="n">'+(i+1)+'</td><td>'+esc(p.name)+'</td><td class="n">'+p.group+'</td><td class="n">'+fM(p.masters)+'</td><td class="n">'+fM(p.pga)+'</td><td class="n">'+fM(p.usopen||0)+'</td><td class="n">—</td><td class="n"><b>'+fM(p.cumulative)+'</b></td></tr>'; });
     h+='</table>';
     for(let g=1;g<=7;g++){
       h+='<h2>Group '+g+'</h2><table><tr><th class="n">#</th><th>Participant</th><th class="n">Masters</th><th class="n">PGA</th><th class="n">US Open</th><th class="n">Cumulative</th></tr>';
-      grp[g].forEach((p,i)=>{ h+='<tr><td class="n">'+(i+1)+'</td><td>'+esc(p.name)+(i===0?' ★':'')+'</td><td class="n">'+fM(p.masters)+'</td><td class="n">'+fM(p.pga)+'</td><td class="n">'+fM(p.usOpenProjected||0)+'</td><td class="n"><b>'+fM(p.cumulative)+'</b></td></tr>'; });
+      grp[g].forEach((p,i)=>{ h+='<tr><td class="n">'+(i+1)+'</td><td>'+esc(p.name)+(i===0?' ★':'')+'</td><td class="n">'+fM(p.masters)+'</td><td class="n">'+fM(p.pga)+'</td><td class="n">'+fM(p.usopen||0)+'</td><td class="n"><b>'+fM(p.cumulative)+'</b></td></tr>'; });
       h+='</table>';
     }
     h+='<h2>Every Roster &amp; Player Results</h2>';
     byCum.forEach((p,i)=>{
-      h+='<div class="pcard"><div class="phead"><span class="pname">#'+(i+1)+' '+esc(p.name)+'</span><span class="pmeta">Group '+p.group+' · Masters '+fShort(p.masters)+' · PGA '+fShort(p.pga)+' · US Open proj. '+fShort(p.usOpenProjected||0)+' · Cumulative '+fShort(p.cumulative)+'</span></div>';
+      h+='<div class="pcard"><div class="phead"><span class="pname">#'+(i+1)+' '+esc(p.name)+'</span><span class="pmeta">Group '+p.group+' · Masters '+fShort(p.masters)+' · PGA '+fShort(p.pga)+' · US Open '+fShort(p.usopen||0)+' · Cumulative '+fShort(p.cumulative)+'</span></div>';
       h+='<table><tr><th>Player</th><th>Masters</th><th class="n">Masters $</th><th>PGA</th><th class="n">PGA $</th><th>US Open</th><th class="n">US Open $</th></tr>';
       p.picks.forEach(x=>{ h+='<tr><td>'+esc(sn(x.player))+'</td><td>'+esc(x.mastersFinish||'—')+'</td><td class="n">'+fM(x.mastersEarnings)+'</td><td>'+esc(x.pgaFinish||'—')+'</td><td class="n">'+fM(x.pgaEarnings)+'</td><td>'+esc(x.usOpenFinish||'—')+'</td><td class="n">'+fM(x.usOpenProjected||0)+'</td></tr>'; });
       h+='</table></div>';
@@ -717,7 +717,7 @@ class Component extends DCLogic {
     const xs=[0,1,2,3].map(i=>L+i*(plotW/3));
     const yOf=v=>T+plotH-(v/niceY)*plotH;
     const completeCount=d.meta.majors.filter(m=>m.status==='complete').length;
-    const cumAt=(p,xi)=>xi===0?p.masters:xi===1?p.cumulative:null;
+    const cumAt=(p,xi)=>xi===0?p.masters:xi===1?(p.masters+p.pga):xi===2?p.cumulative:null;
     const hover=this.state.hover;
     const series=selPart.map(p=>{
       const col=colorOf[p.name];
