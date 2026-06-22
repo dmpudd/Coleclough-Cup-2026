@@ -96,30 +96,51 @@ button{font-family:inherit;cursor:pointer}
     </sc-if>
 
     <!-- ===== PRIZE HERO ===== -->
-    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px">
-      <div style="flex:1 1 240px;background:linear-gradient(165deg,#1b4d33,#123c27);color:#f3efe4;border-radius:14px;padding:16px 18px;position:relative;overflow:hidden;box-shadow:0 4px 16px rgba(18,60,39,.18)">
-        <div style="position:absolute;right:-14px;top:-14px;font-size:88px;opacity:.10;font-family:'Marcellus',serif">①</div>
-        <div style="font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#cBa869;font-weight:700">Overall Pool Champion</div>
-        <div style="font-family:'Marcellus',serif;font-size:21px;margin-top:8px;line-height:1.1">{{ovLeaderName}}</div>
-        <div style="font-size:20px;font-weight:800;margin-top:5px;color:#f6f2e7">{{ovLeaderStr}}</div>
-        <div style="font-size:11.5px;color:#9bb3a3;margin-top:4px">Leads all 56 · across every major</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;align-items:stretch">
+      <!-- Overall Pool Champion (narrow) -->
+      <div style="flex:0 1 160px;min-width:140px;background:linear-gradient(165deg,#1b4d33,#123c27);color:#f3efe4;border-radius:14px;padding:14px 16px;position:relative;overflow:hidden;box-shadow:0 4px 16px rgba(18,60,39,.18)">
+        <div style="position:absolute;right:-10px;top:-10px;font-size:72px;opacity:.10;font-family:'Marcellus',serif">①</div>
+        <div style="font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:#cBa869;font-weight:700">Overall Leader</div>
+        <div style="font-family:'Marcellus',serif;font-size:17px;margin-top:7px;line-height:1.1">{{ovLeaderName}}</div>
+        <div style="font-size:17px;font-weight:800;margin-top:4px;color:#f6f2e7">{{ovLeaderStr}}</div>
+        <div style="font-size:10.5px;color:#9bb3a3;margin-top:3px">All 56 participants</div>
       </div>
-      <div style="flex:1 1 240px;background:#fbf9f2;border-radius:14px;padding:16px 18px;border:1px solid rgba(18,60,39,.1);box-shadow:0 3px 12px rgba(18,60,39,.07)">
-        <div style="font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#b08d44;font-weight:700">Single-Major Champions</div>
-        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:11px;gap:8px">
-          <div style="min-width:0"><div style="font-size:11px;color:#8a988d;text-transform:uppercase;letter-spacing:.06em">Masters</div><div style="font-family:'Marcellus',serif;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{mChampName}}</div></div>
-          <div style="font-weight:700;color:#123c27;white-space:nowrap">{{mChampStr}}</div>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:9px;gap:8px;padding-top:9px;border-top:1px solid rgba(18,60,39,.08)">
-          <div style="min-width:0"><div style="font-size:11px;color:#8a988d;text-transform:uppercase;letter-spacing:.06em">PGA Champ.</div><div style="font-family:'Marcellus',serif;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{pChampName}}</div></div>
-          <div style="font-weight:700;color:#123c27;white-space:nowrap">{{pChampStr}}</div>
+      <!-- Single-Major Champions (wide, 2-col grid) -->
+      <div style="flex:1 1 260px;background:#fbf9f2;border-radius:14px;padding:14px 16px;border:1px solid rgba(18,60,39,.1);box-shadow:0 3px 12px rgba(18,60,39,.07)">
+        <div style="font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:#b08d44;font-weight:700;margin-bottom:10px">Single-Major Champions</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 12px">
+          <!-- Masters -->
+          <div style="border-right:1px solid rgba(18,60,39,.08);padding-right:10px">
+            <div style="font-size:9.5px;color:#8a988d;text-transform:uppercase;letter-spacing:.06em">Masters</div>
+            <div style="font-family:'Marcellus',serif;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px">{{mChampName}}</div>
+            <div style="font-weight:700;color:#123c27;font-size:13px;margin-top:1px">{{mChampStr}}</div>
+          </div>
+          <!-- US Open -->
+          <div>
+            <div style="font-size:9.5px;color:#8a988d;text-transform:uppercase;letter-spacing:.06em">US Open</div>
+            <div style="font-family:'Marcellus',serif;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px">{{uChampName}}</div>
+            <div style="font-weight:700;color:#123c27;font-size:13px;margin-top:1px">{{uChampStr}}</div>
+          </div>
+          <!-- PGA -->
+          <div style="border-top:1px solid rgba(18,60,39,.08);border-right:1px solid rgba(18,60,39,.08);padding-top:8px;padding-right:10px">
+            <div style="font-size:9.5px;color:#8a988d;text-transform:uppercase;letter-spacing:.06em">PGA Champ.</div>
+            <div style="font-family:'Marcellus',serif;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px">{{pChampName}}</div>
+            <div style="font-weight:700;color:#123c27;font-size:13px;margin-top:1px">{{pChampStr}}</div>
+          </div>
+          <!-- The Open -->
+          <div style="border-top:1px solid rgba(18,60,39,.08);padding-top:8px">
+            <div style="font-size:9.5px;color:#8a988d;text-transform:uppercase;letter-spacing:.06em">The Open</div>
+            <div style="font-family:'Marcellus',serif;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;color:#b6c2b8">{{openChampName}}</div>
+            <div style="font-size:11px;color:#b6c2b8;margin-top:2px">{{openChampNote}}</div>
+          </div>
         </div>
       </div>
+      <!-- Your Group (narrow) -->
       <div onClick="{{youCardClick}}" style="{{youCardStyle}}" style-hover="filter:brightness(1.02)">
-        <div style="font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#b08d44;font-weight:700">{{youCardEyebrow}}</div>
-        <div style="font-family:'Marcellus',serif;font-size:19px;margin-top:8px;line-height:1.15">{{youCardTitle}}</div>
-        <div style="font-size:12.5px;color:#5c6b60;margin-top:6px">{{youCardSub}}</div>
-        <div style="font-size:12px;color:#b08d44;margin-top:8px;font-weight:600">{{youCardCta}}</div>
+        <div style="font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:#b08d44;font-weight:700">{{youCardEyebrow}}</div>
+        <div style="font-family:'Marcellus',serif;font-size:17px;margin-top:7px;line-height:1.15">{{youCardTitle}}</div>
+        <div style="font-size:12px;color:#5c6b60;margin-top:5px">{{youCardSub}}</div>
+        <div style="font-size:11.5px;color:#b08d44;margin-top:7px;font-weight:600">{{youCardCta}}</div>
       </div>
     </div>
 
@@ -160,8 +181,10 @@ button{font-family:inherit;cursor:pointer}
         <div style="flex:none;width:30px;text-align:center">#</div>
         <div style="flex:1">Participant</div>
         <sc-if value="{{showChips}}" hint-placeholder-val="{{false}}">
-          <div style="width:84px;text-align:right">Masters</div>
-          <div style="width:84px;text-align:right">PGA</div>
+          <div style="width:74px;text-align:right">Masters</div>
+          <div style="width:74px;text-align:right">PGA</div>
+          <div style="width:74px;text-align:right">US Open</div>
+          <div style="width:58px;text-align:right;color:#b6c2b8">The Open</div>
         </sc-if>
         <div style="min-width:90px;text-align:right">{{primaryLabel}}</div>
         <div style="flex:none;width:16px"></div>
@@ -181,8 +204,10 @@ button{font-family:inherit;cursor:pointer}
             </sc-if>
           </div>
           <sc-if value="{{showChips}}" hint-placeholder-val="{{false}}">
-            <div style="width:84px;text-align:right"><div style="font-size:13.5px;font-weight:600;color:#33433a;font-variant-numeric:tabular-nums">{{row.mastersStr}}</div></div>
-            <div style="width:84px;text-align:right"><div style="font-size:13.5px;font-weight:600;color:#33433a;font-variant-numeric:tabular-nums">{{row.pgaStr}}</div></div>
+            <div style="width:74px;text-align:right"><div style="font-size:13.5px;font-weight:600;color:#33433a;font-variant-numeric:tabular-nums">{{row.mastersStr}}</div></div>
+            <div style="width:74px;text-align:right"><div style="font-size:13.5px;font-weight:600;color:#33433a;font-variant-numeric:tabular-nums">{{row.pgaStr}}</div></div>
+            <div style="width:74px;text-align:right"><div style="font-size:13.5px;font-weight:600;color:#2f6f4f;font-variant-numeric:tabular-nums">{{row.usOpenStr}}</div></div>
+            <div style="width:58px;text-align:right"><div style="font-size:13px;color:#b6c2b8;font-variant-numeric:tabular-nums">{{row.openStr}}</div></div>
           </sc-if>
           <div style="min-width:90px;text-align:right">
             <div style="font-weight:800;font-size:{{primarySize}};color:{{row.primaryColor}};font-variant-numeric:tabular-nums">{{row.primaryStr}}</div>
@@ -460,13 +485,16 @@ class Component extends DCLogic {
     const byCum=[...P].sort((a,b)=>b.cumulative-a.cumulative);
     const mChamp=[...P].sort((a,b)=>b.masters-a.masters)[0];
     const pChamp=[...P].sort((a,b)=>b.pga-a.pga)[0];
+    const uChamp=[...P].sort((a,b)=>b.usopen-a.usopen)[0];
+    const openMaj=d.meta.majors.find(m=>m.key==='open');
+    const openStartDate='17 July 2026';
     const grp={}; for(let g=1;g<=7;g++){ grp[g]=[...P].filter(p=>p.group===g).sort((a,b)=>b.cumulative-a.cumulative); }
     const sn=x=>x.replace(/\s*\([A-Z]+\)\s*$/,'').trim();
     let h='<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Coleclough Cup — Full Results</title><style>*{box-sizing:border-box}body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#19211c;margin:0;background:#fff;padding:34px 26px}h1{font-size:26px;margin:0 0 2px;color:#123c27}h2{font-size:17px;color:#123c27;margin:30px 0 8px;border-bottom:2px solid #b08d44;padding-bottom:5px}.sub{color:#6b7a6f;font-size:13px;margin-bottom:18px}table{border-collapse:collapse;width:100%;font-size:12.5px;margin-bottom:10px}th,td{border:1px solid #d8d2c2;padding:5px 8px;text-align:left}th{background:#123c27;color:#f3efe4;font-weight:600}td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}tr:nth-child(even) td{background:#f7f5ee}.win{display:inline-block;background:#b08d44;color:#fff;border-radius:5px;padding:2px 8px;font-size:12px;font-weight:700;margin:2px 6px 2px 0}.pcard{border:1px solid #d8d2c2;border-radius:8px;padding:10px 13px;margin-bottom:10px;break-inside:avoid}.phead{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;align-items:baseline;margin-bottom:6px}.pname{font-weight:700;font-size:15px;color:#123c27}.pmeta{font-size:12px;color:#6b7a6f}@media print{body{padding:0}h2{page-break-after:avoid}}@page{margin:14mm}</style></head><body>';
     h+='<h1>The Coleclough Cup — 2026 Full Results</h1><div class="sub">'+esc(d.meta.lastUpdated)+' · generated '+new Date().toLocaleString()+'</div>';
     h+='<h2>Champions &amp; Purses</h2><p><span class="win">Overall Pool — '+esc(byCum[0].name)+'</span> '+fM(byCum[0].cumulative)+' across all majors</p>';
-    h+='<p><span class="win">Masters — '+esc(mChamp.name)+'</span> '+fM(mChamp.masters)+'   <span class="win">PGA Championship — '+esc(pChamp.name)+'</span> '+fM(pChamp.pga)+'</p>';
-    h+='<p style="font-size:12.5px;color:#6b7a6f">U.S. Open in progress · The Open not yet played.</p><p><b>Group champions (all majors):</b><br>';
+    h+='<p><span class="win">Masters — '+esc(mChamp.name)+'</span> '+fM(mChamp.masters)+'   <span class="win">PGA Championship — '+esc(pChamp.name)+'</span> '+fM(pChamp.pga)+'   <span class="win">US Open — '+esc(uChamp.name)+'</span> '+fM(uChamp.usopen)+'</p>';
+    h+='<p style="font-size:12.5px;color:#6b7a6f">U.S. Open complete (Wyndham Clark, Shinnecock Hills) · The Open Championship not yet played (Royal Birkdale, 17 Jul 2026).</p><p><b>Group champions (cumulative, 3 majors):</b><br>';
     for(let g=1;g<=7;g++){ h+='<span class="win">Group '+g+' — '+esc(grp[g][0].name)+'</span> '+fM(grp[g][0].cumulative)+'<br>'; }
     h+='</p><h2>Overall Standings</h2><table><tr><th class="n">#</th><th>Participant</th><th class="n">Grp</th><th class="n">Masters</th><th class="n">PGA</th><th class="n">US Open</th><th class="n">The Open</th><th class="n">Cumulative</th></tr>';
     byCum.forEach((p,i)=>{ h+='<tr><td class="n">'+(i+1)+'</td><td>'+esc(p.name)+'</td><td class="n">'+p.group+'</td><td class="n">'+fM(p.masters)+'</td><td class="n">'+fM(p.pga)+'</td><td class="n">'+fM(p.usopen||0)+'</td><td class="n">—</td><td class="n"><b>'+fM(p.cumulative)+'</b></td></tr>'; });
@@ -590,7 +618,7 @@ class Component extends DCLogic {
       const projVal=this.teamProjEarnings(p);
       if(lens==='usopen'){
         primaryStr=this.fmtM(projVal);
-        primaryColor=A; primaryNote='US Open actual'; showBar=true;
+        primaryColor=A; primaryNote='of '+this.fmtM(p.cumulative); showBar=true;
         barStyle='height:100%;width:'+Math.max(4,(projVal/maxProj*100)).toFixed(1)+'%;background:'+A+';border-radius:3px;';
       } else if(lens==='open'){ primaryStr='—'; primaryColor='#b6c2b8'; primaryNote='tees off later'; }
       else if(lens==='masters'){ primaryStr=this.fmtM(p.masters); primaryNote='of '+this.fmtM(p.cumulative); }
@@ -615,7 +643,7 @@ class Component extends DCLogic {
         name:p.name, rankStr:String(rank), rowStyle, rankStyle:rb,
         nameStyle:'font-weight:600;font-size:'+(isNarrow?'14.5px':'15.5px')+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:'+(isNarrow?'150px':'260px'),
         youTag:you, leaderTag:(this.state.tab==='group' && p.isGroupLeader),
-        sub, mastersStr:this.fmtM(p.masters), pgaStr:this.fmtM(p.pga),
+        sub, mastersStr:this.fmtM(p.masters), pgaStr:this.fmtM(p.pga), usOpenStr:this.fmtM(p.usopen||0), openStr:p.open>0?this.fmtM(p.open):'—',
         primaryStr, primaryColor, primaryNote, showBar, barStyle,
         blurbShort:p.blurbShort||'', showBlurbShort:showRoasts && !!(p.blurbShort),
         blurb:p.blurb||'', showBlurb:showRoasts && !!(p.blurb),
@@ -662,6 +690,9 @@ class Component extends DCLogic {
     const ovLeader=byCum[0];
     const mChamp=[...P].sort((a,b)=>b.masters-a.masters)[0];
     const pChamp=[...P].sort((a,b)=>b.pga-a.pga)[0];
+    const uChamp=[...P].sort((a,b)=>b.usopen-a.usopen)[0];
+    const openMaj=d.meta.majors.find(m=>m.key==='open');
+    const openStartDate='17 July 2026';
     const grpLeader={};
     for(let g=1;g<=7;g++){ grpLeader[g]=[...P].filter(p=>p.group===g).sort((a,b)=>b.cumulative-a.cumulative)[0]; }
     const me=this.state.you?P.find(p=>p.name===this.state.you):null;
@@ -793,8 +824,11 @@ class Component extends DCLogic {
       ovLeaderName:ovLeader.name, ovLeaderStr:this.fmtM(ovLeader.cumulative),
       mChampName:mChamp.name, mChampStr:this.fmtM(mChamp.masters),
       pChampName:pChamp.name, pChampStr:this.fmtM(pChamp.pga),
+      uChampName:uChamp.name, uChampStr:this.fmtM(uChamp.usopen),
+      openChampName:(openMaj&&openMaj.status==='complete')?'TBD':'Starts',
+      openChampNote:(openMaj&&openMaj.status==='complete')?'':''+openStartDate+' · R. Birkdale',
       youCardEyebrow:youCard.eyebrow, youCardTitle:youCard.title, youCardSub:youCard.sub, youCardCta:youCard.cta, youCardClick:youCard.click,
-      youCardStyle:'flex:1 1 240px;background:#fbf9f2;border-radius:14px;padding:16px 18px;border:1px solid '+(me?'rgba(176,141,68,.5)':'rgba(18,60,39,.1)')+';box-shadow:0 3px 12px rgba(18,60,39,.07);cursor:pointer',
+      youCardStyle:'flex:0 1 160px;min-width:140px;background:#fbf9f2;border-radius:14px;padding:14px 16px;border:1px solid '+(me?'rgba(176,141,68,.5)':'rgba(18,60,39,.1)')+';box-shadow:0 3px 12px rgba(18,60,39,.07);cursor:pointer',
       hasYou:!!me,
       liveOn, liveLabel:'U.S. OPEN · LIVE', liveSub:'Shinnecock Hills · Final Round',
       updatedStamp:this.fmtStamp(d.meta.updatedAt),
